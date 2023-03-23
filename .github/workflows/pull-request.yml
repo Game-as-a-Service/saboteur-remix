@@ -1,0 +1,11 @@
+name: 📦 Pull Request
+
+on: [pull_request]
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  typecheck:
+    uses: ./.github/workflows/typecheck.yml
+  test:
+    uses: ./.github/workflows/test.yml
