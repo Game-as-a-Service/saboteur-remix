@@ -1,12 +1,12 @@
-import { BadRequestException, UsePipes, applyDecorators } from '@nestjs/common';
-import type { ZodSchema, ZodError } from 'zod';
+import { BadRequestException, UsePipes, applyDecorators } from "@nestjs/common";
+import type { ZodSchema, ZodError } from "zod";
 
 /**
  * @param name Name of the exception
  * @returns Function to create a new BadRequestException
  */
 export const ValidationFailedException =
-  (name = 'Validation Failed') =>
+  (name = "Validation Failed") =>
   (error: ZodError) =>
     new BadRequestException({ ...error, name });
 

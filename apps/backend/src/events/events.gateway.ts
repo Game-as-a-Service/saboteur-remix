@@ -1,10 +1,10 @@
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
 import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
 
 @WebSocketGateway()
 class EventsGateway {
@@ -18,21 +18,21 @@ class EventsGateway {
   }
 
   handleConnection(client: Socket) {
-    const sockets = this.server.of('/').sockets;
+    const sockets = this.server.of("/").sockets;
     this.logger.log(`WS Client with id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
-    this.server.emit('hello', client.id);
+    this.server.emit("hello", client.id);
   }
 
   handleDisconnect(client: Socket) {
-    const sockets = this.server.of('/').sockets;
+    const sockets = this.server.of("/").sockets;
     this.logger.log(`WS Client with id: ${client.id} disconnected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage("message")
   handleMessage(): string {
-    return 'Hello world!';
+    return "Hello world!";
   }
 }
 
