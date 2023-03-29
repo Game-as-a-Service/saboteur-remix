@@ -1,22 +1,22 @@
-import { NestFactory } from '@nestjs/core';
-import AppModule from '~/app.module';
-import { Logger } from '@nestjs/common';
-import z from 'zod';
+import { NestFactory } from "@nestjs/core";
+import AppModule from "~/app.module";
+import { Logger } from "@nestjs/common";
+import z from "zod";
 
 const EnvSchema = z.object({
   PORT: z.coerce.number({
-    required_error: 'ENV PORT is required',
+    required_error: "ENV PORT is required",
   }),
   CLIENT_PORT: z.coerce.number().optional(),
   CORS_ORIGIN: z
     .string()
     .optional()
-    .transform((val) => val?.split(',')),
+    .transform((val) => val?.split(",")),
 });
 const ENV = EnvSchema.parse(process.env);
 
 async function bootstrap() {
-  const logger = new Logger('Main (main.ts)');
+  const logger = new Logger("Main (main.ts)");
   const app = await NestFactory.create(AppModule);
 
   if (ENV.CLIENT_PORT) {
