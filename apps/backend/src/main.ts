@@ -42,7 +42,7 @@ async function bootstrap() {
 
   await app.listen(ENV.PORT);
   logger.log(
-    `started server on 0.0.0.0:${ENV.PORT}, url: http://localhost:${ENV.PORT}`,
+    `started server on 0.0.0.0:${ENV.PORT}, url: http://localhost:${ENV.PORT}`
   );
 }
 bootstrap();
