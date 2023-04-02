@@ -24,7 +24,7 @@ export const ValidationFailedException =
  */
 const Validation = (
   schema: ZodSchema,
-  onRejected = ValidationFailedException(),
+  onRejected = ValidationFailedException()
 ) =>
   applyDecorators(
     UsePipes({
@@ -32,7 +32,7 @@ const Validation = (
         schema.parseAsync(value).catch((error) => {
           throw onRejected(error);
         }),
-    }),
+    })
   );
 
 export default Validation;

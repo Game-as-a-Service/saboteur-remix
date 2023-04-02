@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import EventsGateway from "./events.gateway";
+import EventsGateway from "~/events/events.gateway";
 
 describe("EventsGateway", () => {
   let gateway: EventsGateway;
