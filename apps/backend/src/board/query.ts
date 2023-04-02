@@ -1,4 +1,4 @@
-const CurrentPlacementQuerySymbol = Symbol.for("current placement query");
+const CurrentPlacementQuerySymbol = "current placement query" as const;
 
 export interface CurrentPlacementQuery {
   type: typeof CurrentPlacementQuerySymbol;

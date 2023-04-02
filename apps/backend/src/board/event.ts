@@ -1,9 +1,7 @@
-import type { Event } from "~/event.interface";
+import type { Event } from "~/event";
 import type { Placement } from "~/models/placement";
 
-const PathCardHasBeenPlacedEventSymbol = Symbol.for(
-  "path card has been placed"
-);
+const PathCardHasBeenPlacedEventSymbol = "path card has been placed" as const;
 
 export type PathCardHasBeenPlacedEvent = Event<
   typeof PathCardHasBeenPlacedEventSymbol,

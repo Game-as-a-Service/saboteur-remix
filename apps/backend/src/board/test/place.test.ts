@@ -1,4 +1,4 @@
-import type { EventSource } from "~/event.interface";
+import type { EventSource } from "~/event";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { PathCard } from "~/models/card";
 import {

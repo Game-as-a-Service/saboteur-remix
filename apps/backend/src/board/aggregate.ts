@@ -1,4 +1,4 @@
-import type { EventSource } from "~/event.interface";
+import type { EventSource } from "~/event";
 import { match } from "ts-pattern";
 import { PlacePathCardCommand, isPlacePathCardCommand } from "~/board/command";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";

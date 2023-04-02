@@ -1,4 +1,4 @@
-import type { EventSource } from "~/event.interface";
+import type { EventSource } from "~/event";
 import type { Placement } from "~/models/placement";
 import type { CurrentPlacementQuery } from "~/board/query";
 import { isCurrentPlacementQuery } from "~/board/query";

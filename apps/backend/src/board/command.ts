@@ -1,6 +1,6 @@
 import type { Placement } from "~/models/placement";
 
-const PlacePathCardCommandSymbol = Symbol.for("place path card");
+const PlacePathCardCommandSymbol = "place path card" as const;
 
 export type PlacePathCardCommand = {
   type: typeof PlacePathCardCommandSymbol;

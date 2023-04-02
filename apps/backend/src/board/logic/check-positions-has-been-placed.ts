@@ -1,9 +1,10 @@
-import { Placement } from "~/models/placement";
+import type { EventSource } from "~/event";
+import type { Placement } from "~/models/placement";
+import type { PlacePathCardCommand } from "~/board";
 import * as Vec from "~/models/vec";
 import { prop } from "~/utils";
 import { flow } from "fp-ts/lib/function";
-import { EventSource } from "~/event.interface";
-import { PlacePathCardCommand, CurrentPlacementQuery, project } from "~/board";
+import { CurrentPlacementQuery, project } from "~/board";
 
 function PositionsHasBeenPlacedError(placements: Placement[]) {
   const error = new Error();

@@ -1,4 +1,4 @@
-import type { EventSource } from "~/event.interface";
+import type { EventSource } from "~/event";
 import type { Placement } from "~/models/placement";
 import * as Array from "fp-ts/Array";
 import { isPathCardHasBeenPlacedEvent } from "~/board/event";

@@ -1,4 +1,4 @@
-import type { EventSource } from "~/event.interface";
+import type { EventSource } from "~/event";
 import type { PlacePathCardCommand } from "~/board/command";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
 
