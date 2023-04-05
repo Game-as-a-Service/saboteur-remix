@@ -1,0 +1,30 @@
+name: 🧹 Close Preview
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        type: string
+        description: path to application working directory
+        required: true
+  workflow_dispatch:
+    inputs:
+      working-directory:
+        description: path to application working directory
+        required: true
+        type: choice
+        options:
+          - apps/backend
+          - apps/frontend
+
+jobs:
+  close-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: 🧹 Close Preview
+        run: |
+          app="${GITHUB_SHA}"
+          flyctl destroy --yes $app
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

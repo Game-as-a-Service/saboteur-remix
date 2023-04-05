@@ -1,0 +1,36 @@
+name: 🚀 Preview
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        type: string
+        description: path to application working directory
+        required: true
+  workflow_dispatch:
+    inputs:
+      working-directory:
+        description: path to application working directory
+        required: true
+        type: choice
+        options:
+          - apps/backend
+          - apps/frontend
+
+jobs:
+  preview:
+    name: 🚀 Preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: 🚀 Deploy
+        run: |
+          app="${GITHUB_SHA}"
+          flyctl apps create $app --org saboteur-tw
+          flyctl deploy ${{ inputs.working-directory }} --remote-only --app $app
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

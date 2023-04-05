@@ -27,7 +27,5 @@ USER nestjs
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
-RUN ls -la dist
-
 # Start the server using the production build
 CMD [ "node", "dist/main.js" ]

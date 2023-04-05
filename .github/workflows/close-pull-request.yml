@@ -1,22 +1,11 @@
-name: 📦 Pull Request
+name: 📕 Close Pull Request
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [closed]
 
 jobs:
-  lint:
-    uses: ./.github/workflows/lint.yml
-    secrets: inherit
-  typecheck:
-    uses: ./.github/workflows/typecheck.yml
-    secrets: inherit
-  test:
-    uses: ./.github/workflows/test.yml
-    secrets: inherit
-
   changes:
-    needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -35,18 +24,18 @@ jobs:
             frontend:
               - 'apps/frontend/**'
 
-  preview-backend:
+  close-preview-backend:
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
-    uses: ./.github/workflows/preview.yml
+    uses: ./.github/workflows/close-preview.yml
     with:
       working-directory: apps/backend
     secrets: inherit
 
-  preview-frontend:
+  close-preview-frontend:
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' }}
-    uses: ./.github/workflows/preview.yml
+    uses: ./.github/workflows/close-preview.yml
     with:
       working-directory: apps/frontend
     secrets: inherit
