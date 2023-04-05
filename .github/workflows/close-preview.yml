@@ -25,7 +25,8 @@ jobs:
       - name: 🧹 Close Preview
         run: |
           pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
-          app="${pr}-${{ inputs.working-directory }}"
-          flyctl destroy --yes $app
+          app=$(echo "${{ inputs.working-directory }}" | cut -d "/" -f 2)
+          name="${pr}-${app}"
+          flyctl destroy --yes $name
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
