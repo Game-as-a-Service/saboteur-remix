@@ -1,6 +1,8 @@
 name: 📦 Pull Request
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
 
 jobs:
   lint:
@@ -9,3 +11,38 @@ jobs:
     uses: ./.github/workflows/typecheck.yml
   test:
     uses: ./.github/workflows/test.yml
+
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/backend/**'
+            frontend:
+              - 'apps/frontend/**'
+
+  preview-backend:
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+    uses: ./.github/workflows/preview.yml
+    with:
+      working-directory: apps/backend
+    secrets: inherit
+
+  preview-frontend:
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    uses: ./.github/workflows/preview.yml
+    with:
+      working-directory: apps/frontend
+    secrets: inherit

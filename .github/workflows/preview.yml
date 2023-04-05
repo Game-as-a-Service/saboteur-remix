@@ -1,0 +1,52 @@
+name: 🚀 Preview
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        type: string
+        description: path to application working directory
+        required: true
+  workflow_dispatch:
+    inputs:
+      working-directory:
+        description: path to application working directory
+        required: true
+        type: choice
+        options:
+        - apps/backend
+        - apps/frontend
+
+
+jobs:
+  preview:
+    name: 🚀 Preview
+    runs-on: ubuntu-latest
+
+    # Only run one deployment at a time per PR.
+    concurrency:
+      group: pr-${{ github.event.number }}
+
+    # Create a GitHub deployment environment per staging app
+    # so it shows up in the pull request UI.
+    environment:
+      name: pr-${{ github.event.number }}
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.11.0
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v3
+      - name: 🚀 Deploy
+        uses: superfly/fly-pr-review-apps@1.0.0
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        with:
+          path: ${{ inputs.working-directory }}
+      - name: 🧹 Clean up
+        if: ${{ github.event.action == 'closed' }}
+        uses: strumwolf/delete-deployment-environment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: pr-${{ github.event.number }}
