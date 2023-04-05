@@ -21,10 +21,27 @@ jobs:
   close-preview:
     runs-on: ubuntu-latest
     steps:
-      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: 💡 Environment
+        shell: bash
+        run: |
+          pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
+          app=$(echo "${{ inputs.working-directory }}" | cut -d "/" -f 2)
+          echo "app=$pr-$app" >> $GITHUB_ENV
+
+      - name: 🎈 Setup Fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: 🧹 Close Preview
         run: |
-          app="${GITHUB_SHA}"
-          flyctl destroy --yes $app
+          flyctl destroy --yes ${{ env.app }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 📝 Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            [Preview Closed]
+            :---:
+            🧹 Preview removed because the pull request was closed.

@@ -17,7 +17,6 @@ jobs:
     secrets: inherit
 
   changes:
-    needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -37,7 +36,7 @@ jobs:
               - 'apps/frontend/**'
 
   deploy-backend:
-    needs: changes
+    needs: [lint, typecheck, test, changes]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     uses: ./.github/workflows/deployments.yml
     with:
@@ -45,7 +44,7 @@ jobs:
     secrets: inherit
 
   deploy-frontend:
-    needs: changes
+    needs: [lint, typecheck, test, changes]
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     uses: ./.github/workflows/deployments.yml
     with:
