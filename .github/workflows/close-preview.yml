@@ -24,7 +24,8 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: 🧹 Close Preview
         run: |
-          app="${GITHUB_SHA}"
+          pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
+          app="${pr}-${{ inputs.working-directory }}"
           flyctl destroy --yes $app
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

@@ -29,7 +29,8 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: 🚀 Deploy
         run: |
-          app="${GITHUB_SHA}"
+          pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
+          app="${pr}-${{ inputs.working-directory }}"
           flyctl apps create $app --org saboteur-tw
           flyctl deploy ${{ inputs.working-directory }} --remote-only --app $app
         env:
