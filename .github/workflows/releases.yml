@@ -6,7 +6,15 @@ on:
       - main
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  typecheck:
+    uses: ./.github/workflows/typecheck.yml
+  test:
+    uses: ./.github/workflows/test.yml
+
   changes:
+    needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read

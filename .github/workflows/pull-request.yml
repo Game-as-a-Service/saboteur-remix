@@ -13,6 +13,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   changes:
+    needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
