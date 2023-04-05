@@ -2,6 +2,10 @@ name: ʦ Type Check
 
 on: [workflow_call, workflow_dispatch]
 
+env:
+   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
 jobs:
   typecheck:
     name: ʦ Type Check
