@@ -8,10 +8,13 @@ on:
 jobs:
   lint:
     uses: ./.github/workflows/lint.yml
+    secrets: inherit
   typecheck:
     uses: ./.github/workflows/typecheck.yml
+    secrets: inherit
   test:
     uses: ./.github/workflows/test.yml
+    secrets: inherit
 
   changes:
     needs: [lint, typecheck, test]

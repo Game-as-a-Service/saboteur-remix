@@ -1,4 +1,4 @@
-name: 🚀 Preview
+name: 🧹 Close Preview
 
 on:
   workflow_call:
@@ -18,19 +18,13 @@ on:
           - apps/frontend
 
 jobs:
-  preview:
-    name: 🚀 Preview
+  close-preview:
     runs-on: ubuntu-latest
     steps:
-      - name: 🛑 Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.11.0
-      - name: ⬇️ Checkout
-        uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: 🚀 Deploy
+      - name: 🧹 Close Preview
         run: |
           app="${GITHUB_SHA}"
-          flyctl apps create $app --org saboteur-tw
-          flyctl deploy ${{ inputs.working-directory }} --remote-only --app $app
+          flyctl destroy --yes $app
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
