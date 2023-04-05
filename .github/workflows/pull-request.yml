@@ -16,7 +16,6 @@ jobs:
     secrets: inherit
 
   changes:
-    needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: read
@@ -36,7 +35,7 @@ jobs:
               - 'apps/frontend/**'
 
   preview-backend:
-    needs: changes
+    needs: [lint, typecheck, test, changes]
     if: ${{ needs.changes.outputs.backend == 'true' }}
     uses: ./.github/workflows/preview.yml
     with:
@@ -44,7 +43,7 @@ jobs:
     secrets: inherit
 
   preview-frontend:
-    needs: changes
+    needs: [lint, typecheck, test, changes]
     if: ${{ needs.changes.outputs.frontend == 'true' }}
     uses: ./.github/workflows/preview.yml
     with:

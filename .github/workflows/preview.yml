@@ -24,15 +24,34 @@ jobs:
     steps:
       - name: 🛑 Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.11.0
+
       - name: ⬇️ Checkout
         uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: 🚀 Deploy
+
+      - name: 🎈 Setup Fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: 💡 Environment
+        shell: bash
         run: |
           pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
           app=$(echo "${{ inputs.working-directory }}" | cut -d "/" -f 2)
-          name="${pr}-${app}"
-          flyctl apps create $name --org saboteur-tw
-          flyctl deploy ${{ inputs.working-directory }} --remote-only --app $name
+          echo "app=$pr-$app" >> $GITHUB_ENV
+
+      - name: 🚀 Deploy
+        run: |
+          if ! flyctl status --app ${{ env.app }}; then
+            flyctl apps create ${{ env.app }} --org saboteur-tw
+          fi
+          flyctl deploy ${{ inputs.working-directory }} --remote-only --app ${{ env.app }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: 📝 Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: pr-preview
+          message: |
+            [Preview]
+            :---:
+            🚀 Deployed preview to https://${{ env.app }}.fly.dev/
