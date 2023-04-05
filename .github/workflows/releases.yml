@@ -35,7 +35,7 @@ jobs:
 
   deploy-frontend:
     needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
     uses: ./.github/workflows/deployments.yml
     with:
       working-directory: apps/frontend
