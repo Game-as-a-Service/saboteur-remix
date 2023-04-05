@@ -4,7 +4,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { assert } from "@sindresorhus/is";
 import { Server, Socket } from "socket.io";
 
 @WebSocketGateway()
@@ -19,7 +18,7 @@ class EventsGateway {
   }
 
   handleConnection(client: Socket) {
-    assert.directInstanceOf(this.server, Server);
+    if (!this.server) return;
     const sockets = this.server.of("/").sockets;
     this.logger.log(`WS Client with id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
@@ -27,7 +26,7 @@ class EventsGateway {
   }
 
   handleDisconnect(client: Socket) {
-    assert.directInstanceOf(this.server, Server);
+    if (!this.server) return;
     const sockets = this.server.of("/").sockets;
     this.logger.log(`WS Client with id: ${client.id} disconnected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
