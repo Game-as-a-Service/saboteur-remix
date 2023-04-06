@@ -4,7 +4,7 @@ export type JSONType = Record<string | number, unknown> | unknown[] | string;
  * An event is a message that describes a change in the state of the system.
  */
 export type Event<
-  Type extends string | symbol = string | symbol,
+  Type extends string = string,
   Data extends JSONType = JSONType,
   Metadata extends JSONType | unknown = unknown
 > = Readonly<{

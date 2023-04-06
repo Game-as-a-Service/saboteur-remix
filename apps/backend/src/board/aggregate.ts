@@ -1,9 +1,9 @@
-import type { EventSource } from "~/event";
+import type { EventSource } from "~/models/event";
+import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { match } from "ts-pattern";
 import { PlacePathCardCommand, isPlacePathCardCommand } from "~/board/command";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import place from "~/board/logic/place";
-import checkPositionsHasBeenPlaced from "~/board/logic/check-positions-has-been-placed";
+import placePathCard from "~/board/logic/place-path-card";
+import { identity, throws } from "~/utils";
 
 interface Aggregate {
   (command: PlacePathCardCommand): Promise<PathCardHasBeenPlacedEvent[]>;
@@ -13,10 +13,7 @@ export const aggregate =
   (command) =>
     match(command)
       .when(isPlacePathCardCommand, (command) =>
-        Promise.resolve(command)
-          // validate positions has been placed
-          .then((command) => checkPositionsHasBeenPlaced(repository, command))
-          .then((command) => place(repository, command))
+        placePathCard(repository, command).match(identity, throws)
       )
       .exhaustive();
 
