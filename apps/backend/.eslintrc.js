@@ -1,15 +1,18 @@
 /** @type {import('@types/eslint').Linter.BaseConfig} */
 module.exports = {
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: 'tsconfig.json',
+    project: "tsconfig.json",
     tsconfigRootDir: __dirname,
-    sourceType: 'module',
+    sourceType: "module",
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ["@typescript-eslint/eslint-plugin", "neverthrow"],
   extends: [
-    'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
   ],
-  ignorePatterns: ['.eslintrc.js']
+  ignorePatterns: [".eslintrc.js"],
+  rules: {
+    "neverthrow/must-use-result": "error",
+  },
 };

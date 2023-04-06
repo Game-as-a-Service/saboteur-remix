@@ -1,4 +1,4 @@
-import type { Event } from "~/event";
+import type { Event } from "~/models/event";
 import type { Placement } from "~/models/placement";
 
 const PathCardHasBeenPlacedEventSymbol = "path card has been placed" as const;
