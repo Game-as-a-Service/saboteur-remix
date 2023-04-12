@@ -1,8 +1,7 @@
 import type { EventSource } from "~/models/event";
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { PlacePathCardCommand } from "~/board/command";
 import { PathCard } from "~/models/card";
 import placePathCard from "~/board/logic/place-path-card";
-import { PlacePathCardCommand } from "~/board/command";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { never } from "~/utils";
 
@@ -11,11 +10,11 @@ describe("place path card", () => {
 
   beforeEach(() => {
     let store: unknown[] = [];
-    const append = vi.fn().mockImplementation((...args: unknown[]) => {
+    const append = jest.fn().mockImplementation((...args: unknown[]) => {
       store = store.concat(...args);
       return Promise.resolve(args);
     });
-    const read = vi.fn().mockImplementation(() => {
+    const read = jest.fn().mockImplementation(() => {
       return Promise.resolve(store);
     });
     source = { append, read };
@@ -34,7 +33,7 @@ describe("place path card", () => {
         - event source should includes
           - path card has been placed event with
             - start card at position (0, 0)
-    `, () =>
+    `, async () =>
     placePathCard(
       source,
       PlacePathCardCommand({
@@ -87,7 +86,7 @@ describe("place path card", () => {
             - goal card at position  (8, 0)
             - goal card at position  (8, 2)
             - goal card at position  (8,-2)
-    `, () =>
+    `, async () =>
     placePathCard(
       source,
       PlacePathCardCommand(

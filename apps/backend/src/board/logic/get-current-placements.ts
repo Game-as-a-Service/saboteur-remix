@@ -4,10 +4,10 @@ import * as Array from "fp-ts/Array";
 import { isPathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync } from "neverthrow";
 import { always, error } from "~/utils";
+import { match, P } from "ts-pattern";
 
-export interface RepositoryReadError extends Error {
-  name: "RepositoryReadError";
-}
+const EventSourceReadError = error("EventSourceReadError");
+export type RepositoryReadError = ReturnType<typeof EventSourceReadError>;
 export type GetCurrentPlacementsError = RepositoryReadError;
 export interface GetCurrentPlacements {
   (repository: EventSource): ResultAsync<
@@ -16,25 +16,32 @@ export interface GetCurrentPlacements {
   >;
 }
 
-function reducer(placements: Placement[], event: Event) {
-  if (isPathCardHasBeenPlacedEvent(event)) {
-    return placements.concat(event.data);
-  }
-  return placements;
-}
-
-const RepositoryReadError = error("RepositoryReadError");
-
-export const getCurrentPlacements: GetCurrentPlacements = (repository) =>
-  // read all events from repository
-  ResultAsync.fromPromise(
-    repository.read(),
-    always(
-      RepositoryReadError("failed to read events from repository")
+const reducer = (placements: Placement[], event: Event) =>
+  match(event)
+    .with(
+      P.when(isPathCardHasBeenPlacedEvent),
+      (event) => placements.concat(event.data)
       //
     )
-  )
-    // aggregate all events to current placements
-    .map(Array.reduce([], reducer));
+    .otherwise(always(placements));
+
+const readAllEventsFromEventSource = (source: EventSource) =>
+  ResultAsync.fromPromise(
+    source.read(),
+    always(EventSourceReadError("failed to read events from source"))
+  );
+
+const AggregateAllEventsToGetCurrentPlacements = Array.reduce([], reducer);
+
+/**
+ * *description*
+ * get current placements in the board
+ *
+ * *param* source - event source
+ */
+export const getCurrentPlacements: GetCurrentPlacements = (source) =>
+  readAllEventsFromEventSource(source)
+    //
+    .map(AggregateAllEventsToGetCurrentPlacements);
 
 export default getCurrentPlacements;

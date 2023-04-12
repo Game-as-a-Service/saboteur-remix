@@ -1,3 +1,3 @@
-export type ErrorFactory = <Name extends string>(
+export type ErrorFactory = <const Name extends string>(
   name: Name
 ) => (message: string) => Error & { name: Name };

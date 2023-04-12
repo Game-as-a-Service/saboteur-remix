@@ -9,7 +9,7 @@ import { throws, identity } from "~/utils";
 interface Projector {
   (query: CurrentPlacementQuery): Promise<Placement[]>;
 }
-export const project =
+export const projection =
   (repository: EventSource): Projector =>
   (query) =>
     match(query)
@@ -18,4 +18,4 @@ export const project =
       )
       .exhaustive();
 
-export default project;
+export default projection;

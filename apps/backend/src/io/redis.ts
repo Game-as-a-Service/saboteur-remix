@@ -1,6 +1,5 @@
 import { createClient } from "redis";
 import { v4 as uuid } from "uuid";
-import type { EventSource } from "~/event";
 
 async function redis(id = uuid()) {
   const client = createClient();
@@ -23,13 +22,4 @@ async function redis(id = uuid()) {
   return client;
 }
 
-const source: EventSource = {
-  append: (...events) => {
-    redis().then((client) => {
-      events.forEach((event) => {
-        client.xAdd(event.type, "*", { message: "Hello World" });
-      });
-    });
-  },
-  read: (option) => {},
-};
+export default redis;

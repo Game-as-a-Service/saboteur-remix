@@ -34,11 +34,18 @@ export function throws(data: unknown): never {
   throw data;
 }
 
-export const error: ErrorFactory = (name) => (message) => ({
-  ...Error(message),
-  name,
-});
+export const error: ErrorFactory = (name) => (message) =>
+  Object.assign(Error(message), {
+    name,
+  });
 
 export function never() {
   throw new Error("should not be called");
+}
+
+export function tap<T>(fn: UnaryFn<T, void>) {
+  return (value: T): T => {
+    fn(value);
+    return value;
+  };
 }

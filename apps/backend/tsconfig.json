@@ -1,5 +1,7 @@
 {
   "extends": "@tsconfig/node-lts",
+  "include": ["src", "test"],
+  "files": ["test/test.d.ts"],
   "compilerOptions": {
     "declaration": true,
     "removeComments": true,
