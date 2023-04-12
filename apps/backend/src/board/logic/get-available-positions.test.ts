@@ -1,5 +1,4 @@
-import { describe, test, expect } from "vitest";
-import getAvailablePositions from "~/board/logic/get-available-positions";
+import getAvailablePositions from "./get-available-positions";
 import { PathCard } from "~/models/card";
 
 describe("get available positions", () => {

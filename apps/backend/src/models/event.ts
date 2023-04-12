@@ -1,12 +1,12 @@
-export type JSONType = Record<string | number, unknown> | unknown[] | string;
+import type { Json } from "~/models/json";
 
 /**
  * An event is a message that describes a change in the state of the system.
  */
 export type Event<
   Type extends string = string,
-  Data extends JSONType = JSONType,
-  Metadata extends JSONType | unknown = unknown
+  Data extends Json = Json,
+  Metadata extends Json | unknown = unknown
 > = Readonly<{
   type: Type;
   data: Data;

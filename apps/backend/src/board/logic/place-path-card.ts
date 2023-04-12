@@ -6,9 +6,8 @@ import checkPositionsHasBeenPlaced from "./check-positions-has-been-placed";
 import { ResultAsync } from "neverthrow";
 import { always, error } from "~/utils";
 
-export interface RepositoryWriteError extends Error {
-  name: "RepositoryWriteError";
-}
+const RepositoryWriteError = error("RepositoryWriteError");
+export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
 export type PlacePathCardError =
   | CheckPositionsHasBeenPlacedError
   | RepositoryWriteError;
@@ -19,20 +18,23 @@ export interface PlacePathCard {
   >;
 }
 
-const RepositoryWriteError = error("RepositoryWriteError");
-
-export const placePathCard: PlacePathCard = (source, command) =>
-  // validate positions has been placed
-  checkPositionsHasBeenPlaced(source, command)
-    // write event to repository
-    .andThen(() =>
-      ResultAsync.fromPromise(
-        source.append(PathCardHasBeenPlacedEvent(...command.data)),
-        always(
-          RepositoryWriteError("failed to write event to repository")
-          //
-        )
-      )
+const appendEventToEventSource =
+  (source: EventSource, command: PlacePathCardCommand) => () =>
+    ResultAsync.fromPromise(
+      source.append(PathCardHasBeenPlacedEvent(...command.data)),
+      always(RepositoryWriteError("failed to write event to repository"))
     );
+
+/**
+ * *description*
+ * application logic that handle user want to place path card on the board.
+ *
+ * *param* source - event source
+ * *param* command - place path card command
+ */
+export const placePathCard: PlacePathCard = (source, command) =>
+  checkPositionsHasBeenPlaced(source, command)
+    //
+    .andThen(appendEventToEventSource(source, command));
 
 export default placePathCard;
