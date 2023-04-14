@@ -12,7 +12,8 @@ describe("HealthController", () => {
     controller = module.get<HealthController>(HealthController);
   });
 
-  it("should be defined", () => {
-    expect(controller).toBeDefined();
-  });
+  it("should be defined", () => expect(controller).toBeDefined());
+
+  it("should return a health check", () =>
+    expect(controller.check()).toBe("ok"));
 });
