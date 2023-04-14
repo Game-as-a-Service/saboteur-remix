@@ -1,11 +1,12 @@
 import { createClient } from "redis";
 import { v4 as uuid } from "uuid";
 import { Logger } from "@nestjs/common";
+import env from "~/env";
 
 const logger = new Logger("Redis (redis.ts)");
 
 async function redis(id = uuid()) {
-  const client = createClient();
+  const client = createClient({ url: env.REDIS_URL });
 
   client.once("connect", () =>
     logger.log(`Initiating connection:${id} to the redis server`)

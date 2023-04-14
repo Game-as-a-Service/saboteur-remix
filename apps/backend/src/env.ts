@@ -5,6 +5,9 @@ export default z
     PORT: z.coerce.number({
       required_error: "ENV PORT is required",
     }),
+    REDIS_URL: z.string({
+      required_error: "ENV REDIS_URL is required",
+    }),
     CLIENT_PORT: z.coerce.number().optional(),
     CORS_ORIGIN: z
       .string()
