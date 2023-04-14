@@ -14,8 +14,8 @@ on:
         required: true
         type: choice
         options:
-        - apps/backend
-        - apps/frontend
+          - apps/backend
+          - apps/frontend
 
 jobs:
   deploy:
@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - name: 🚀 Deploy
-        run:
+        run: |
           flyctl secrets set REDIS_URL=${{ secrets.REDIS_URL }}
           flyctl deploy ${{ inputs.working-directory }} --remote-only
         env:
