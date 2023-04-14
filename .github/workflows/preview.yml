@@ -43,6 +43,8 @@ jobs:
           if ! flyctl status --app ${{ env.app }}; then
             flyctl apps create ${{ env.app }} --org saboteur-tw
           fi
+
+          flyctl secrets --app ${{ env.app }} set REDIS_URL=${{ secrets.REDIS_URL }}
           flyctl deploy ${{ inputs.working-directory }} --remote-only --app ${{ env.app }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
