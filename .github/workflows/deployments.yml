@@ -14,8 +14,8 @@ on:
         required: true
         type: choice
         options:
-        - apps/backend
-        - apps/frontend
+          - apps/backend
+          - apps/frontend
 
 jobs:
   deploy:
