@@ -1,8 +1,9 @@
 import type { Event, EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
-import * as Array from "fp-ts/Array";
+import type { BoardEvent } from "~/board/event";
 import { isPathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync } from "neverthrow";
+import * as Array from "fp-ts/Array";
 import { always, error } from "~/utils";
 import { match, P } from "ts-pattern";
 
@@ -10,7 +11,7 @@ const EventSourceReadError = error("EventSourceReadError");
 export type RepositoryReadError = ReturnType<typeof EventSourceReadError>;
 export type GetCurrentPlacementsError = RepositoryReadError;
 export interface GetCurrentPlacements {
-  (repository: EventSource): ResultAsync<
+  (repository: EventSource<BoardEvent>): ResultAsync<
     Placement[],
     GetCurrentPlacementsError
   >;
@@ -25,7 +26,7 @@ const reducer = (placements: Placement[], event: Event) =>
     )
     .otherwise(always(placements));
 
-const readAllEventsFromEventSource = (source: EventSource) =>
+const readAllEventsFromEventSource = (source: EventSource<BoardEvent>) =>
   ResultAsync.fromPromise(
     source.read(),
     always(EventSourceReadError("failed to read events from source"))

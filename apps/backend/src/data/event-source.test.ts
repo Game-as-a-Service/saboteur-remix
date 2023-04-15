@@ -5,6 +5,7 @@ describe("event-source", () => {
   const client = {
     xAdd: jest.fn(),
     xRange: jest.fn(),
+    xRead: () => Promise.resolve([]),
   };
 
   beforeEach(() => {

@@ -9,7 +9,7 @@ interface Aggregate {
   (command: PlacePathCardCommand): Promise<BoardEvent[]>;
 }
 export const aggregate =
-  (repository: EventSource): Aggregate =>
+  (repository: EventSource<BoardEvent>): Aggregate =>
   (command) =>
     match(command)
       .when(isPlacePathCardCommand, (command) =>

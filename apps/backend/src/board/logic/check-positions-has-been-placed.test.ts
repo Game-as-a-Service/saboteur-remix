@@ -6,7 +6,7 @@ import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import checkPositionsHasBeenPlaced from "./check-positions-has-been-placed";
 
 describe("check positions has been placed", () => {
-  let source: EventSource;
+  let source: EventSource<PathCardHasBeenPlacedEvent>;
 
   beforeEach(() => {
     let store: unknown[] = [];
@@ -17,7 +17,7 @@ describe("check positions has been placed", () => {
     const read = jest.fn().mockImplementation(() => {
       return Promise.resolve(store);
     });
-    source = { append, read };
+    source = { append, read, on: jest.fn(), off: jest.fn() };
   });
 
   test(`

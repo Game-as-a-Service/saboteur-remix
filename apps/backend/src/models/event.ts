@@ -47,15 +47,29 @@ export interface ReadOption {
 /**
  * An event source is a place where events can be stored and read.
  */
-export interface EventSource {
+export interface EventSource<E extends Event> {
   /**
    * Append events to the event source.
    * @param events The events to append.
    */
-  append: <E extends Event>(...events: E[]) => Promise<E[]>;
+  append: (...events: E[]) => Promise<E[]>;
   /**
    * Read events from the event source.
    * @param option The options for reading events.
    */
-  read: (option?: ReadOption) => Promise<Event[]>;
+  read: (option?: ReadOption) => Promise<E[]>;
+
+  /**
+   * Subscribe to events from the event source.
+   * @param type The type of event to subscribe to.
+   * @param listener The listener to subscribe.
+   */
+  on: (type: E["type"], listener: (event: E) => void) => void;
+
+  /**
+   * Unsubscribe from events from the event source.
+   * @param type The type of event to unsubscribe from.
+   * @param listener The listener to unsubscribe.
+   */
+  off: (type: E["type"], listener: (event: E) => void) => void;
 }
