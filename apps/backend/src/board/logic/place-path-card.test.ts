@@ -25,8 +25,8 @@ describe("place path card", () => {
         an empty board
       when:
         place
-          - start card at position (0, 0)
-      expect:
+          start card at position (0, 0)
+      then:
         - should return
           - path card has been placed event with
             - start card at position (0, 0)
@@ -73,7 +73,7 @@ describe("place path card", () => {
           - goal card at position  (8, 0)
           - goal card at position  (8, 2)
           - goal card at position  (8,-2)
-      expect:
+      then:
         - should return
           - path card has been placed event with
             - start card at position (0, 0)
@@ -161,10 +161,12 @@ describe("place path card", () => {
 
   test(`
       given:
-        there is already a path card placed in the position where the player wants to place.
+        a board:
+          - a start card at position (0, 0)
       when:
-        the player chooses to place their path card in the position where there is already a path card.
-      expect:
+        place
+          - path card [connected cross] at position (0, 0)
+      then:
         the path card cannot be placed.
     `, () =>
     Promise.resolve()
@@ -182,7 +184,7 @@ describe("place path card", () => {
           source,
           PlacePathCardCommand({
             position: [0, 0],
-            card: PathCard.START,
+            card: PathCard.CONNECTED_CROSS,
           })
         )
       )
@@ -190,9 +192,79 @@ describe("place path card", () => {
         result.match(never, (error) =>
           expect(error).toStrictEqual(
             AggregateError([
-              "the path card start cannot be placed at position (0,0)",
+              "the path card connected cross cannot be placed at position (0,0)",
             ])
           )
         )
       ));
+
+  test.todo(`
+    given:
+      a board with
+        - a start card at position (0, 0)
+        - a path card [connected bottom right] at position (0, 1)
+        - a path card [connected top left right] at position (1, 1)
+    when:
+      place
+        path card [connected bottom right] at position (1, 0)
+    then:
+      the path card cannot be placed.
+  `);
+
+  test.todo(`
+    given:
+      a board with
+        - a start card at position (0, 0)
+        - a path card [connected bottom right] at position (1, 0)
+    when:
+      place
+        path card [connected left right] at position (2, 0)
+    then:
+      the path card cannot be placed.
+  `);
+
+  test.todo(`
+    given:
+      a board with
+        - a start card at position (0, 0)
+        - a path card [deadend top left right] at position (0, -1)
+    when:
+      place
+        path card [deadend left right] at position (1, -1)
+    then:
+      the path card cannot be placed.
+  `);
+
+  test.todo(`
+    given:
+      a board with
+        - a start card at position (0, 0)
+        - a path card [connected top left right] at position (1, 0)
+    when:
+      place
+        a path card [connected left bottom] at position (2, 0)
+    then:
+      - should return
+        - path card has been placed event with
+          - path card [connected left bottom] at position (2, 0)
+      - event source should includes
+        - path card has been placed event with
+          - path card [connected left bottom] at position (2, 0)
+  `);
+
+  test.todo(`
+    given:
+      a board with
+        - a start card at position (0, 0)
+    when:
+      place
+        - path card [connected cross] at position (0, 1)
+    then:
+      - should return
+        - path card has been placed event with
+          - path card [connected cross] at position (0, 1)
+      - event source should includes
+        - path card has been placed event with
+          - path card [connected cross] at position (0, 1)
+  `);
 });
