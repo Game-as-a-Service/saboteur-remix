@@ -31,7 +31,7 @@ const readAllEventsFromEventSource = (source: EventSource) =>
     always(EventSourceReadError("failed to read events from source"))
   );
 
-const AggregateAllEventsToGetCurrentPlacements = Array.reduce([], reducer);
+const aggregateAllEventsToGetCurrentPlacements = Array.reduce([], reducer);
 
 /**
  * *description*
@@ -42,6 +42,6 @@ const AggregateAllEventsToGetCurrentPlacements = Array.reduce([], reducer);
 export const getCurrentPlacements: GetCurrentPlacements = (source) =>
   readAllEventsFromEventSource(source)
     //
-    .map(AggregateAllEventsToGetCurrentPlacements);
+    .map(aggregateAllEventsToGetCurrentPlacements);
 
 export default getCurrentPlacements;
