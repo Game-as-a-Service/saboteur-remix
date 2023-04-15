@@ -2,6 +2,7 @@ import type { EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
 import type { PlacePathCardCommand } from "~/board/command";
 import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
+import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync, err, ok } from "neverthrow";
 import getCurrentPlacements from "~/board/logic/get-current-placements";
 import { prop, error, always } from "~/utils";
@@ -19,10 +20,10 @@ export type CheckPositionsHasBeenPlacedError =
   | PositionsHasBeenPlacedError
   | GetCurrentPlacementsError;
 export interface CheckPositionsHasBeenPlaced {
-  (repository: EventSource, command: PlacePathCardCommand): ResultAsync<
-    PlacePathCardCommand,
-    CheckPositionsHasBeenPlacedError
-  >;
+  (
+    repository: EventSource<PathCardHasBeenPlacedEvent>,
+    command: PlacePathCardCommand
+  ): ResultAsync<PlacePathCardCommand, CheckPositionsHasBeenPlacedError>;
 }
 
 const filterPlacementsByPositionHasBeenTaken = (board: Placement[]) =>

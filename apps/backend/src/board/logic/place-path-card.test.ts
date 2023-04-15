@@ -6,7 +6,7 @@ import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { never } from "~/utils";
 
 describe("place path card", () => {
-  let source: EventSource;
+  let source: EventSource<PathCardHasBeenPlacedEvent>;
 
   beforeEach(() => {
     let store: unknown[] = [];
@@ -17,7 +17,7 @@ describe("place path card", () => {
     const read = jest.fn().mockImplementation(() => {
       return Promise.resolve(store);
     });
-    source = { append, read };
+    source = { append, read, on: jest.fn(), off: jest.fn() };
   });
 
   test(`

@@ -12,14 +12,18 @@ export type PlacePathCardError =
   | CheckPositionsHasBeenPlacedError
   | RepositoryWriteError;
 export interface PlacePathCard {
-  (source: EventSource, command: PlacePathCardCommand): ResultAsync<
-    PathCardHasBeenPlacedEvent[],
-    PlacePathCardError
-  >;
+  (
+    source: EventSource<PathCardHasBeenPlacedEvent>,
+    command: PlacePathCardCommand
+  ): ResultAsync<PathCardHasBeenPlacedEvent[], PlacePathCardError>;
 }
 
 const appendEventToEventSource =
-  (source: EventSource, command: PlacePathCardCommand) => () =>
+  (
+    source: EventSource<PathCardHasBeenPlacedEvent>,
+    command: PlacePathCardCommand
+  ) =>
+  () =>
     ResultAsync.fromPromise(
       source.append(PathCardHasBeenPlacedEvent(...command.data)),
       always(RepositoryWriteError("failed to write event to repository"))
