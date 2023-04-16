@@ -2,7 +2,7 @@ import AppModule from "~/app.module";
 import { NestFactory } from "@nestjs/core";
 import { Logger } from "@nestjs/common";
 import env from "~/env";
-import createRedisStreamsAdapter from "./io/redis-streams-adapter";
+import createRedisStreamsAdapter from "~/io/redis-streams-adapter";
 import redis from "~/io/redis";
 
 async function bootstrap() {
@@ -25,7 +25,7 @@ async function bootstrap() {
   });
 
   app.useWebSocketAdapter(
-    createRedisStreamsAdapter(app, await redis())
+    createRedisStreamsAdapter(app, await redis(env.REDIS_URL))
     //
   );
 

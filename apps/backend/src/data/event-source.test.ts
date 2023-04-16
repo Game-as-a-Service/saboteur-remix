@@ -26,7 +26,7 @@ describe("event-source", () => {
       should return event
   `, () =>
     import("./event-source")
-      .then((module) => module.default("test"))
+      .then((module) => module.default({ key: "test", url: "test" }))
       .then((eventSource) =>
         eventSource.append({
           type: "path card has been placed",
@@ -77,7 +77,7 @@ describe("event-source", () => {
   `, async () => {
     client.xRange.mockReturnValue(Promise.resolve([]));
     return import("./event-source")
-      .then((module) => module.default("test"))
+      .then((module) => module.default({ key: "test", url: "test" }))
       .then((eventSource) => eventSource.read())
       .then((events) => expect(events).toStrictEqual([]));
   });
@@ -110,7 +110,7 @@ describe("event-source", () => {
     );
 
     return import("./event-source")
-      .then((module) => module.default("test"))
+      .then((module) => module.default({ key: "test", url: "test" }))
       .then((eventSource) => eventSource.read())
       .then((events) =>
         expect(events).toStrictEqual([

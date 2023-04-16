@@ -6,6 +6,7 @@ import { BoardEvent, PathCardHasBeenPlacedEvent } from "~/board/event";
 import { CurrentPlacementQuery } from "~/board/query";
 import Aggregate from "~/board/aggregate";
 import Projection from "~/board/projection";
+import env from "~/env";
 
 interface ServerToClientEvents {
   "path card has been placed": (event: PathCardHasBeenPlacedEvent) => void;
@@ -29,18 +30,23 @@ function getRoomIdFromClient(client: Client) {
 
 function gateway(client: Client) {
   const room = getRoomIdFromClient(client);
-  const source = createEventSource<BoardEvent>(room);
+
+  const source = createEventSource<BoardEvent>({
+    key: room,
+    url: env.REDIS_URL,
+  });
   const aggregate = Aggregate(source);
   const projection = Projection(source);
 
+  // todo: handle errors
   client.on("place path card", (placement) =>
     aggregate(PlacePathCardCommand(placement))
   );
   source.on("path card has been placed", (event) => {
-    client.in(room).emit("path card has been placed", event);
+    client.emit("path card has been placed", event);
 
     projection(CurrentPlacementQuery()).then((placements) =>
-      client.in(room).emit("update board", placements)
+      client.emit("update board", placements)
     );
   });
 }
