@@ -5,7 +5,8 @@ describe("event-source", () => {
   const client = {
     xAdd: jest.fn(),
     xRange: jest.fn(),
-    xRead: () => Promise.resolve([]),
+    xRead: jest.fn().mockReturnValue(Promise.resolve([])),
+    quit: jest.fn(),
   };
 
   beforeEach(() => {
