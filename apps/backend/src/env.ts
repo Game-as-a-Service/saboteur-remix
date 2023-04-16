@@ -1,3 +1,4 @@
+import "dotenv-flow/config";
 import z from "zod";
 
 export default z

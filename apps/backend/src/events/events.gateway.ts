@@ -5,6 +5,7 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import BoardGateway from "~/board/gateway";
 
 @WebSocketGateway()
 class EventsGateway {
@@ -22,7 +23,7 @@ class EventsGateway {
     const sockets = this.server.of("/").sockets;
     this.logger.log(`WS Client with id: ${client.id} connected`);
     this.logger.debug(`Number of connected clients: ${sockets.size}`);
-    this.server.emit("hello", client.id);
+    BoardGateway(client);
   }
 
   handleDisconnect(client: Socket) {

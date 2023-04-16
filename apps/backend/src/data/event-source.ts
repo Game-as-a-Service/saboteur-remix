@@ -2,17 +2,41 @@ import type { EventSource, Event } from "~/models/event";
 import redis from "~/io/redis";
 import { tap } from "~/utils";
 
-function createEventSource<E extends Event>(key: string): EventSource<E> {
+function loop(fn: () => Promise<unknown>) {
+  let running = false;
+
+  async function run() {
+    running = true;
+    while (running) {
+      await fn();
+    }
+  }
+
+  function stop() {
+    running = false;
+  }
+
+  return { run, stop };
+}
+
+interface EventSourceConfig {
+  key: string;
+  url: string;
+}
+function createEventSource<E extends Event>(
+  config: EventSourceConfig
+): EventSource<E> {
+  const { key, url } = config;
+
+  const client = () => redis(url);
+
   type Handler = (event: E) => void;
   const handlers: Record<string, Handler[]> = {};
-
-  let isWatching = false;
-  function watch() {
-    isWatching = true;
-
-    redis().then(async (client) => {
-      while (isWatching) {
-        await client.xRead({ key, id: "$" }, { BLOCK: 0 }).then((data) =>
+  const { run, stop } = loop(() =>
+    client().then((client) =>
+      client
+        .xRead({ key, id: "$" }, { BLOCK: 0 })
+        .then((data) =>
           data
             ?.flatMap((item) => item.messages)
             .map((item) => item.message.event)
@@ -20,40 +44,41 @@ function createEventSource<E extends Event>(key: string): EventSource<E> {
             .forEach((event) =>
               handlers[event.type]?.forEach((handler) => handler(event))
             )
-        );
-      }
-    });
-  }
+        )
+        .then(() => client.quit())
+    )
+  );
 
   return {
     append: (...events) =>
-      redis().then((client) =>
+      client().then((client) =>
         Promise.all(
           events.map(
             tap((event) =>
               client.xAdd(key, "*", { event: JSON.stringify(event) })
             )
           )
-        )
+        ).then(tap(() => client.quit()))
       ),
-
     read: () =>
-      redis()
-        .then((client) => client.xRange(key, "-", "+"))
-        .then((data) =>
-          Promise.all(
-            data
-              .map((item) => item.message.event)
-              .map((event) => JSON.parse(event))
+      client().then((client) =>
+        client
+          .xRange(key, "-", "+")
+          .then((data) =>
+            Promise.all(
+              data
+                .map((item) => item.message.event)
+                .map((event) => JSON.parse(event))
+            )
           )
-        ),
-
+          .then(tap(() => client.quit()))
+      ),
     on: (type, handle) => {
       handlers[type] = handlers[type] ?? [];
       handlers[type] = handlers[type].concat(handle);
 
-      if (!isWatching && Object.values(handlers).flat().length > 0) {
-        watch();
+      if (Object.values(handlers).flat().length > 0) {
+        run();
       }
     },
 
@@ -61,8 +86,8 @@ function createEventSource<E extends Event>(key: string): EventSource<E> {
       handlers[type] = handlers[type] ?? [];
       handlers[type] = handlers[type].filter((handler) => handler !== handle);
 
-      if (isWatching && Object.values(handlers).flat().length === 0) {
-        isWatching = false;
+      if (Object.values(handlers).flat().length <= 0) {
+        stop();
       }
     },
   };
