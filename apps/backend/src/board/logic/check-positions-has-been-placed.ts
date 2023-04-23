@@ -54,7 +54,7 @@ const ifThereNoPlacementHasBeenTaken = Either.fromPredicate<
 const checkIfAnyPositionsHasBeenPlaced =
   (command: PlacePathCardCommand) => (board: Placement[]) =>
     pipe(
-      command.data,
+      [command.data],
       filterPlacementsByPositionHasBeenTaken(board),
       ifThereNoPlacementHasBeenTaken,
       Either.matchW(

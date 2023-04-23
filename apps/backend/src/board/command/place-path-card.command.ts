@@ -4,7 +4,7 @@ import z from "zod";
 
 export const PlacePathCardCommandSchema = z.object({
   type: z.literal("place path card"),
-  data: z.array(PlacementSchema),
+  data: PlacementSchema,
 });
 
 export type PlacePathCardCommand = Readonly<
@@ -12,7 +12,7 @@ export type PlacePathCardCommand = Readonly<
 >;
 
 export function PlacePathCardCommand(data: Placement): PlacePathCardCommand {
-  return { type: "place path card", data: [data] };
+  return { type: "place path card", data };
 }
 
 export function isPlacePathCardCommand(
