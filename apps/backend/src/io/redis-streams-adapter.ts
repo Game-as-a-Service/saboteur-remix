@@ -8,21 +8,31 @@ type Client = Awaited<ReturnType<typeof redis>>;
 
 class RedisIoAdapter extends IoAdapter {
   client?: Client;
+  heartbeatInterval = 5_000;
 
   createIOServer(port: number, options?: ServerOptions) {
     const server = super.createIOServer(port, options);
-    server.adapter(createAdapter(this.client));
+    server.adapter(
+      createAdapter(this.client, {
+        heartbeatInterval: this.heartbeatInterval,
+      })
+    );
     return server;
   }
 }
 
 const createRedisStreamsAdapter = (
   app: INestApplicationContext,
-  client: Client
+  client: Client,
+  options?: { heartbeatInterval?: number }
 ) => {
   const adapter = new RedisIoAdapter(app);
 
   adapter.client = client;
+
+  if (options?.heartbeatInterval) {
+    adapter.heartbeatInterval = options.heartbeatInterval;
+  }
 
   return adapter;
 };
