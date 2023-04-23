@@ -11,10 +11,8 @@ export type PlacePathCardCommand = Readonly<
   z.infer<typeof PlacePathCardCommandSchema>
 >;
 
-export function PlacePathCardCommand(
-  ...data: Placement[]
-): PlacePathCardCommand {
-  return { type: "place path card", data };
+export function PlacePathCardCommand(data: Placement): PlacePathCardCommand {
+  return { type: "place path card", data: [data] };
 }
 
 export function isPlacePathCardCommand(
