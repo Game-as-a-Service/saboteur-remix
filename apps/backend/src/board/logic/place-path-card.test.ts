@@ -396,13 +396,8 @@ describe("place path card", () => {
             result.match(
               (event) =>
                 expect(event).toStrictEqual([
-                  PathCardHasBeenPlacedEvent({
                     position: [1, 0],
                     card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
-                  }),
-                ]),
-              never
-            )
           )
           .then(() =>
             placePathCard(
