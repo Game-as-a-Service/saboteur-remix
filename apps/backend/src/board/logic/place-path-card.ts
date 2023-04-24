@@ -25,7 +25,7 @@ const appendEventToEventSource =
   ) =>
   () =>
     ResultAsync.fromPromise(
-      source.append(PathCardHasBeenPlacedEvent(...command.data)),
+      source.append(PathCardHasBeenPlacedEvent(command.data)),
       always(RepositoryWriteError("failed to write event to repository"))
     );
 

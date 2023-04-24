@@ -4,16 +4,14 @@ import z from "zod";
 
 export const PlacePathCardCommandSchema = z.object({
   type: z.literal("place path card"),
-  data: z.array(PlacementSchema),
+  data: PlacementSchema,
 });
 
 export type PlacePathCardCommand = Readonly<
   z.infer<typeof PlacePathCardCommandSchema>
 >;
 
-export function PlacePathCardCommand(
-  ...data: Placement[]
-): PlacePathCardCommand {
+export function PlacePathCardCommand(data: Placement): PlacePathCardCommand {
   return { type: "place path card", data };
 }
 
