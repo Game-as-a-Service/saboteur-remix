@@ -86,50 +86,88 @@ describe("place path card", () => {
             - goal card at position  (8, 0)
             - goal card at position  (8, 2)
             - goal card at position  (8,-2)
-    `, async () =>
-    placePathCard(
-      source,
-      PlacePathCardCommand(
-        {
-          position: [0, 0],
-          card: PathCard.START,
-        },
-        {
-          position: [8, 0],
-          card: PathCard.GOAL_COAL_BOTTOM_LEFT,
-        },
-        {
-          position: [8, 2],
-          card: PathCard.GOAL_GOLD,
-        },
-        {
-          position: [8, -2],
-          card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
-        }
+    `, () =>
+    Promise.resolve()
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, 0],
+            card: PathCard.START,
+          })
+        )
       )
-    )
       .then((event) =>
         event.match(
           (event) =>
             expect(event).toStrictEqual([
-              PathCardHasBeenPlacedEvent(
-                {
-                  position: [0, 0],
-                  card: PathCard.START,
-                },
-                {
-                  position: [8, 0],
-                  card: PathCard.GOAL_COAL_BOTTOM_LEFT,
-                },
-                {
-                  position: [8, 2],
-                  card: PathCard.GOAL_GOLD,
-                },
-                {
-                  position: [8, -2],
-                  card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
-                }
-              ),
+              PathCardHasBeenPlacedEvent({
+                position: [0, 0],
+                card: PathCard.START,
+              }),
+            ]),
+          never
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [8, 0],
+            card: PathCard.GOAL_COAL_BOTTOM_LEFT,
+          })
+        )
+      )
+      .then((event) =>
+        event.match(
+          (event) =>
+            expect(event).toStrictEqual([
+              PathCardHasBeenPlacedEvent({
+                position: [8, 0],
+                card: PathCard.GOAL_COAL_BOTTOM_LEFT,
+              }),
+            ]),
+          never
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [8, 2],
+            card: PathCard.GOAL_GOLD,
+          })
+        )
+      )
+      .then((event) =>
+        event.match(
+          (event) =>
+            expect(event).toStrictEqual([
+              PathCardHasBeenPlacedEvent({
+                position: [8, 2],
+                card: PathCard.GOAL_GOLD,
+              }),
+            ]),
+          never
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [8, -2],
+            card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
+          })
+        )
+      )
+      .then((event) =>
+        event.match(
+          (event) =>
+            expect(event).toStrictEqual([
+              PathCardHasBeenPlacedEvent({
+                position: [8, -2],
+                card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
+              }),
             ]),
           never
         )
@@ -137,24 +175,22 @@ describe("place path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent(
-              {
-                position: [0, 0],
-                card: PathCard.START,
-              },
-              {
-                position: [8, 0],
-                card: PathCard.GOAL_COAL_BOTTOM_LEFT,
-              },
-              {
-                position: [8, 2],
-                card: PathCard.GOAL_GOLD,
-              },
-              {
-                position: [8, -2],
-                card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
-              }
-            ),
+            PathCardHasBeenPlacedEvent({
+              position: [0, 0],
+              card: PathCard.START,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [8, 0],
+              card: PathCard.GOAL_COAL_BOTTOM_LEFT,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [8, 2],
+              card: PathCard.GOAL_GOLD,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [8, -2],
+              card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
+            }),
           ])
         )
       ));
