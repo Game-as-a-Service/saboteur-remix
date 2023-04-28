@@ -70,6 +70,31 @@ const PathCardRule: Record<PathCard, Direction[]> = Object.freeze({
   [PathCard.DEADEND_LEFT]: [Direction.LEFT],
 });
 
+const PathCardConnectRule: Record<PathCard, boolean> = Object.freeze({
+  [PathCard.START]: true,
+  [PathCard.GOAL_GOLD]: true,
+  [PathCard.GOAL_COAL_BOTTOM_RIGHT]: true,
+  [PathCard.GOAL_COAL_BOTTOM_LEFT]: true,
+
+  [PathCard.CONNECTED_TOP_BOTTOM]: true,
+  [PathCard.CONNECTED_TOP_BOTTOM_RIGHT]: true,
+  [PathCard.CONNECTED_CROSS]: true,
+  [PathCard.CONNECTED_TOP_LEFT_RIGHT]: true,
+  [PathCard.CONNECTED_LEFT_RIGHT]: true,
+  [PathCard.CONNECTED_BOTTOM_RIGHT]: true,
+  [PathCard.CONNECTED_BOTTOM_LEFT]: true,
+
+  [PathCard.DEADEND_BOTTOM]: false,
+  [PathCard.DEADEND_TOP_BOTTOM]: false,
+  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: false,
+  [PathCard.DEADEND_CROSS]: false,
+  [PathCard.DEADEND_TOP_LEFT_RIGHT]: false,
+  [PathCard.DEADEND_LEFT_RIGHT]: false,
+  [PathCard.DEADEND_BOTTOM_RIGHT]: false,
+  [PathCard.DEADEND_BOTTOM_LEFT]: false,
+  [PathCard.DEADEND_LEFT]: false,
+});
+
 /**
  * lists all available positions by given path
  */
@@ -96,6 +121,8 @@ function bfs(paths: Placement[]) {
         yield path;
         set.add(path.position);
       }
+
+      if (!PathCardConnectRule[path.card]) continue;
 
       for (const n of available(path)) {
         if (!set.has(n)) {
