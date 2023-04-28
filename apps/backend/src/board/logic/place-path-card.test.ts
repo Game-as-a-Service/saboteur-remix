@@ -270,8 +270,8 @@ describe("place path card", () => {
     placePathCard(
       source,
       PlacePathCardCommand({
-        position: [0, 1],
-        card: PathCard.CONNECTED_CROSS,
+        position: [0, 0],
+        card: PathCard.START,
       })
     )
       .then((result) =>
@@ -279,21 +279,46 @@ describe("place path card", () => {
           (event) =>
             expect(event).toStrictEqual([
               PathCardHasBeenPlacedEvent({
-                position: [0, 1],
-                card: PathCard.CONNECTED_CROSS,
+                position: [0, 0],
+                card: PathCard.START,
               }),
             ]),
           never
         )
       )
       .then(() =>
-        source.read().then((events) =>
-          expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
-              position: [0, 1],
-              card: PathCard.CONNECTED_CROSS,
-            }),
-          ])
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, 1],
+            card: PathCard.CONNECTED_CROSS,
+          })
         )
+          .then((result) =>
+            result.match(
+              (event) =>
+                expect(event).toStrictEqual([
+                  PathCardHasBeenPlacedEvent({
+                    position: [0, 1],
+                    card: PathCard.CONNECTED_CROSS,
+                  }),
+                ]),
+              never
+            )
+          )
+          .then(() =>
+            source.read().then((events) =>
+              expect(events).toStrictEqual([
+                PathCardHasBeenPlacedEvent({
+                  position: [0, 0],
+                  card: PathCard.START,
+                }),
+                PathCardHasBeenPlacedEvent({
+                  position: [0, 1],
+                  card: PathCard.CONNECTED_CROSS,
+                }),
+              ])
+            )
+          )
       ));
 });
