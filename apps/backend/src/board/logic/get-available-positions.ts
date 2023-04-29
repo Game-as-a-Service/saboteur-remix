@@ -46,28 +46,15 @@ const PathCardRule: Record<PathCard, Direction[]> = Object.freeze({
   [PathCard.CONNECTED_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
   [PathCard.CONNECTED_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
 
-  [PathCard.DEADEND_BOTTOM]: [Direction.BOTTOM],
-  [PathCard.DEADEND_TOP_BOTTOM]: [Direction.TOP, Direction.BOTTOM],
-  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.RIGHT,
-  ],
-  [PathCard.DEADEND_CROSS]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.DEADEND_TOP_LEFT_RIGHT]: [
-    Direction.TOP,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.DEADEND_LEFT_RIGHT]: [Direction.LEFT, Direction.RIGHT],
-  [PathCard.DEADEND_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
-  [PathCard.DEADEND_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
-  [PathCard.DEADEND_LEFT]: [Direction.LEFT],
+  [PathCard.DEADEND_BOTTOM]: [],
+  [PathCard.DEADEND_TOP_BOTTOM]: [],
+  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: [],
+  [PathCard.DEADEND_CROSS]: [],
+  [PathCard.DEADEND_TOP_LEFT_RIGHT]: [],
+  [PathCard.DEADEND_LEFT_RIGHT]: [],
+  [PathCard.DEADEND_BOTTOM_RIGHT]: [],
+  [PathCard.DEADEND_BOTTOM_LEFT]: [],
+  [PathCard.DEADEND_LEFT]: [],
 });
 
 /**
@@ -116,7 +103,7 @@ function getAvailablePositions(placement: Placement[]): Position[] {
   const hasPlaced = Vec.Set(placement.map(prop("position"))).has;
 
   return pipe(
-    Option.fromNullable(placement[0]), // start position
+    Option.fromNullable(placement[0]),
     Option.map(
       flow(
         bfs(placement),
