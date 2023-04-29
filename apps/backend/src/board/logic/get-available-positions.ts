@@ -8,7 +8,7 @@ import * as Vec from "~/models/vec";
 import { PathCard } from "~/models/card";
 import { Direction } from "~/models/direction";
 
-type Position = Vec.Vec2;
+export type Position = Vec.Vec2;
 const PathCardRule: Record<PathCard, Direction[]> = Object.freeze({
   [PathCard.START]: [
     Direction.TOP,

@@ -1,15 +1,21 @@
 import type { EventSource } from "~/models/event";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { CheckPositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
+import type { PositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
+import type { GetCurrentPlacementsError } from "./get-current-placements";
+import type { PositionIsNotValidErrors } from "./check-positions-is-available";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import checkPositionsHasBeenPlaced from "./check-positions-has-been-placed";
+import getCurrentPlacements from "./get-current-placements";
+import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
+import checkIfPositionIsAvailable from "./check-positions-is-available";
 import { ResultAsync } from "neverthrow";
 import { always, error } from "~/utils";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
 export type PlacePathCardError =
-  | CheckPositionsHasBeenPlacedError
+  | GetCurrentPlacementsError
+  | PositionsHasBeenPlacedError
+  | PositionIsNotValidErrors
   | RepositoryWriteError;
 export interface PlacePathCard {
   (
@@ -37,7 +43,8 @@ const appendEventToEventSource =
  * *param* command - place path card command
  */
 export const placePathCard: PlacePathCard = (source, command) =>
-  checkPositionsHasBeenPlaced(source, command)
+  getCurrentPlacements(source)
+    .andThen(checkIfAnyPositionsHasBeenPlaced(command))
     //
     .andThen(appendEventToEventSource(source, command));
 
