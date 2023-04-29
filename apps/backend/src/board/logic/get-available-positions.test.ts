@@ -2,7 +2,30 @@ import getAvailablePositions from "./get-available-positions";
 import { PathCard } from "~/models/card";
 
 describe("get available positions", () => {
-  test("start", () => {
+  test(`
+      given:
+        an empty placement array 
+      when:
+        get available positions
+      then:
+        no available positions
+  `, () => {
+    expect(getAvailablePositions([])).toIncludeSameMembers([]);
+  });
+
+  test(`
+      given:
+        a placement array with
+          - a start card at position (0, 0)
+      when:
+        get available positions
+      then:
+        positions includes
+          - position ( 0, 1)
+          - position ( 0,-1)
+          - position (-1, 0)
+          - position ( 1, 0)
+  `, () => {
     expect(
       getAvailablePositions([
         { position: [0, 0], card: PathCard.START },
@@ -16,7 +39,19 @@ describe("get available positions", () => {
     ]);
   });
 
-  test("start and deadend_cross test", () => {
+  test(`
+      given:
+        a placement array with
+          - a start card at position (0, 0)
+          - a path card [deadend cross] at position (1, 0)
+      when:
+        get available positions
+      then:
+        positions includes
+          - position ( 0, 1)
+          - position ( 0,-1)
+          - position (-1, 0)
+  `, () => {
     expect(
       getAvailablePositions([
         { position: [0, 0], card: PathCard.START },
@@ -29,7 +64,22 @@ describe("get available positions", () => {
     ]);
   });
 
-  test("test for place-path-card-logic-1", () => {
+  test(`
+      given:
+        a placement array with
+          - a start card at position (0, 0)
+          - a path card [connected bottom right] at position (0, 1)
+          - a path card [connected top left right] at position (1, 1)
+      when:
+        get available positions
+      then:
+        positions includes
+          - position ( 0,-1)
+          - position (-1, 0)
+          - position ( 1, 0)
+          - position ( 1, 2)
+          - position ( 2, 1)
+  `, () => {
     expect(
       getAvailablePositions([
         { position: [0, 0], card: PathCard.START },
@@ -45,7 +95,19 @@ describe("get available positions", () => {
     ]);
   });
 
-  test("test for place-path-card-logic-3", () => {
+  test(`
+      given:
+        a placement array with
+          - a start card at position (0, 0)
+          - a path card [deadend top left right] at position (0, -1)
+      when:
+        get available positions
+      then:
+        positions includes
+          - position (1, 0)
+          - position (0, 1)
+          - position (0,-1)
+  `, () => {
     expect(
       getAvailablePositions([
         { position: [0, 0], card: PathCard.START },
