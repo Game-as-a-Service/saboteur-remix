@@ -288,7 +288,7 @@ describe("place path card", () => {
           - path card [connected left bottom] at position (2, 0)
   `);
 
-  test.todo(`
+  test(`
     given:
       a board with
         - a start card at position (0, 0)
@@ -302,5 +302,59 @@ describe("place path card", () => {
       - event source should includes
         - path card has been placed event with
           - path card [connected cross] at position (0, 1)
-  `);
+  `, async () =>
+    placePathCard(
+      source,
+      PlacePathCardCommand({
+        position: [0, 0],
+        card: PathCard.START,
+      })
+    )
+      .then((result) =>
+        result.match(
+          (event) =>
+            expect(event).toStrictEqual([
+              PathCardHasBeenPlacedEvent({
+                position: [0, 0],
+                card: PathCard.START,
+              }),
+            ]),
+          never
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, 1],
+            card: PathCard.CONNECTED_CROSS,
+          })
+        )
+          .then((result) =>
+            result.match(
+              (event) =>
+                expect(event).toStrictEqual([
+                  PathCardHasBeenPlacedEvent({
+                    position: [0, 1],
+                    card: PathCard.CONNECTED_CROSS,
+                  }),
+                ]),
+              never
+            )
+          )
+          .then(() =>
+            source.read().then((events) =>
+              expect(events).toStrictEqual([
+                PathCardHasBeenPlacedEvent({
+                  position: [0, 0],
+                  card: PathCard.START,
+                }),
+                PathCardHasBeenPlacedEvent({
+                  position: [0, 1],
+                  card: PathCard.CONNECTED_CROSS,
+                }),
+              ])
+            )
+          )
+      ));
 });
