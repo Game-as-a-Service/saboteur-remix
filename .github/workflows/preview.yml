@@ -34,7 +34,7 @@ jobs:
       - name: 💡 Environment
         shell: bash
         run: |
-          pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2)
+          pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2 | tr '[:upper:]' '[:lower:]')
           app=$(echo "${{ inputs.working-directory }}" | cut -d "/" -f 2)
           echo "app=$pr-$app" >> $GITHUB_ENV
 
