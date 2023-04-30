@@ -13,26 +13,24 @@ describe("check positions has been placed", () => {
         should return place path card command
     `, () =>
     Promise.resolve(
-      checkIfAnyPositionsHasBeenPlaced(
+      checkIfAnyPositionsHasBeenPlaced([])(
         PlacePathCardCommand({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
         })
-      )([])
-    )
-      //
-      .then((result) =>
-        result.match(
-          (command) =>
-            expect(command).toStrictEqual(
-              PlacePathCardCommand({
-                card: PathCard.CONNECTED_CROSS,
-                position: [0, 0],
-              })
-            ),
-          never
-        )
-      ));
+      )
+    ).then((result) =>
+      result.match(
+        (command) =>
+          expect(command).toStrictEqual(
+            PlacePathCardCommand({
+              card: PathCard.CONNECTED_CROSS,
+              position: [0, 0],
+            })
+          ),
+        never
+      )
+    ));
 
   test(`
       given:
@@ -45,28 +43,24 @@ describe("check positions has been placed", () => {
         should throw placement has been placed error
     `, () =>
     Promise.resolve(
-      checkIfAnyPositionsHasBeenPlaced(
-        PlacePathCardCommand({
-          card: PathCard.CONNECTED_CROSS,
-          position: [0, 0],
-        })
-      )([
+      checkIfAnyPositionsHasBeenPlaced([
         {
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
         },
-      ])
+      ])(
+        PlacePathCardCommand({
+          card: PathCard.CONNECTED_CROSS,
+          position: [0, 0],
+        })
+      )
     ).then((result) =>
-      result.match(
-        never,
-        (error) =>
-          expect(error).toStrictEqual(
-            AggregateError([
-              `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`,
-              //
-            ])
-          )
-        //
+      result.match(never, (error) =>
+        expect(error).toStrictEqual(
+          AggregateError([
+            `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`,
+          ])
+        )
       )
     ));
 });

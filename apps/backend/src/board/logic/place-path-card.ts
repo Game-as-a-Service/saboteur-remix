@@ -9,6 +9,7 @@ import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed"
 import checkIfPositionIsAvailable from "./check-positions-is-available";
 import { ResultAsync } from "neverthrow";
 import { always, error } from "~/utils";
+import { Placement } from "~/models/placement";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
@@ -44,7 +45,11 @@ const appendEventToEventSource =
  */
 export const placePathCard: PlacePathCard = (source, command) =>
   getCurrentPlacements(source)
-    .andThen(checkIfAnyPositionsHasBeenPlaced(command))
+    .andThen((board: Placement[]) => {
+      const checkExist = checkIfAnyPositionsHasBeenPlaced(board);
+      const checkConnected = checkIfPositionIsAvailable(board);
+      return checkExist(command);
+    })
     //
     .andThen(appendEventToEventSource(source, command));
 

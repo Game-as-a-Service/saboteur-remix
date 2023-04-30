@@ -29,10 +29,10 @@ describe("get available positions", () => {
     expect(
       getAvailablePositions([{ position: [0, 0], card: PathCard.START }])
     ).toIncludeSameMembers([
-      [1, 0],
-      [-1, 0],
       [0, 1],
       [0, -1],
+      [-1, 0],
+      [1, 0],
     ]);
   });
 
@@ -55,9 +55,9 @@ describe("get available positions", () => {
         { position: [1, 0], card: PathCard.DEADEND_CROSS },
       ])
     ).toIncludeSameMembers([
-      [-1, 0],
       [0, 1],
       [0, -1],
+      [-1, 0],
     ]);
   });
 
@@ -84,11 +84,11 @@ describe("get available positions", () => {
         { position: [1, 1], card: PathCard.CONNECTED_TOP_LEFT_RIGHT },
       ])
     ).toIncludeSameMembers([
-      [1, 0],
-      [-1, 0],
       [0, -1],
-      [2, 1],
+      [-1, 0],
+      [1, 0],
       [1, 2],
+      [2, 1],
     ]);
   });
 
@@ -111,9 +111,9 @@ describe("get available positions", () => {
         { position: [0, -1], card: PathCard.DEADEND_TOP_LEFT_RIGHT },
       ])
     ).toIncludeSameMembers([
-      [1, 0],
-      [-1, 0],
       [0, 1],
+      [-1, 0],
+      [1, 0],
     ]);
   });
 });

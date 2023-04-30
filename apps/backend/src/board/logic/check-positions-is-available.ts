@@ -6,40 +6,46 @@ import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync, err, ok } from "neverthrow";
 import { prop, error, always } from "~/utils";
 import { flow, pipe } from "fp-ts/lib/function";
-import * as Vec from "~/models/vec";
 import * as Array from "fp-ts/Array";
 import * as Either from "fp-ts/Either";
+import getAvailablePositions from "./get-available-positions";
 
-const PositionHasBeenPlacedError = error("PositionHasBeenPlacedError");
-type PositionHasBeenPlacedError = ReturnType<typeof PositionHasBeenPlacedError>;
-export interface PositionsHasBeenPlacedError extends AggregateError {
-  errors: PositionHasBeenPlacedError[];
+const PositionIsNotValidError = error("PositionIsNotValidError");
+type PositionIsNotValidError = ReturnType<typeof PositionIsNotValidError>;
+export interface PositionIsNotValidErrors extends AggregateError {
+  errors: PositionIsNotValidError[];
 }
-export interface CheckPositionsHasBeenPlaced {
+export type CheckPositionsIsNotConnectedError =
+  | PositionIsNotValidErrors
+  | GetCurrentPlacementsError;
+export interface CheckPositionsIsAvailable {
   (
     repository: EventSource<PathCardHasBeenPlacedEvent>,
     command: PlacePathCardCommand
-  ): ResultAsync<PlacePathCardCommand, PositionsHasBeenPlacedError>;
+  ): ResultAsync<PlacePathCardCommand, CheckPositionsIsNotConnectedError>;
 }
 
-const filterPlacementsByPositionHasBeenTaken = (board: Placement[]) =>
-  Array.filter<Placement>(
+/**
+ * return placement that is available
+ * @param board - placements
+ */
+const filterPlacementsByAvailablePosition = (board: Placement[]) => {
+  const positions = getAvailablePositions(board);
+  return Array.filter<Placement>(
     flow(
       prop("position"),
-      Vec.Set(board.map(prop("position"))).has
+      positions.includes
       //
     )
   );
+};
 
-const ifThereNoPlacementHasBeenTaken = Either.fromPredicate<
-  Placement[],
-  AggregateError
->(
+const ifNotAvailable = Either.fromPredicate<Placement[], AggregateError>(
   Array.isEmpty,
   (placements) =>
     AggregateError(
       placements.map((placement) =>
-        PositionHasBeenPlacedError(
+        PositionIsNotValidError(
           `the path card ${placement.card} cannot be placed at position (${placement.position})`
         )
       )
@@ -49,17 +55,18 @@ const ifThereNoPlacementHasBeenTaken = Either.fromPredicate<
 
 /**
  * *description*
- * check if place path card command placements that has been taken in the board
+ * check if place path card command placements is well connected to start path cards and its neighbors
  *
  * *param* source - event source
  * *param* command - place path card command
  */
-const checkIfAnyPositionsHasBeenPlaced =
+const checkIfPositionIsAvailable =
   (board: Placement[]) => (command: PlacePathCardCommand) =>
     pipe(
       [command.data],
-      filterPlacementsByPositionHasBeenTaken(board),
-      ifThereNoPlacementHasBeenTaken,
+      filterPlacementsByAvailablePosition(board),
+      ifNotAvailable,
+      // TODO: Check is connected to neighbor
       Either.matchW(
         err,
         always(ok(command))
@@ -67,4 +74,4 @@ const checkIfAnyPositionsHasBeenPlaced =
       )
     );
 
-export default checkIfAnyPositionsHasBeenPlaced;
+export default checkIfPositionIsAvailable;
