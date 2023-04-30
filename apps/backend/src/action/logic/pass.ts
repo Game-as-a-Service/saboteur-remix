@@ -1,4 +1,4 @@
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
 import { TurnHasBeenPassedEvent } from "~/action/event";
@@ -11,7 +11,7 @@ export interface Pass {
   (
     source: EventSource<TurnHasBeenPassedEvent>,
     command: PassCommand
-  ): ResultAsync<TurnHasBeenPassedEvent[], PassError>;
+  ): ResultAsync<TurnHasBeenPassedEvent[], Error /* PassError */>;
 }
 
 const RepositoryWriteError = error("RepositoryWriteError");
@@ -58,6 +58,6 @@ export const pass: Pass = (source, command) =>
    *  - maybe can remove
    *  > Hand over to the next event for execution
    **/
-  appendEventToEventSource(source, command);
+  errAsync(new Error("not implemented"));
 
 export default pass;
