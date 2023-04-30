@@ -4,13 +4,13 @@ import { PathCard } from "~/models/card";
 export const PassCommandSchema = z.object({
   type: z.literal("pass"),
   data: z.object({
-    card: z.nativeEnum(PathCard),
+    card: z.nativeEnum(PathCard).nullable(),
   }),
 });
 
 export type PassCommand = Readonly<z.infer<typeof PassCommandSchema>>;
 
-export function PassCommand(card: PathCard): PassCommand {
+export function PassCommand(card: PathCard | null): PassCommand {
   return { type: "pass", data: { card } };
 }
 
