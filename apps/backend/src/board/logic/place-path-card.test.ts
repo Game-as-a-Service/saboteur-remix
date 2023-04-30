@@ -365,6 +365,7 @@ describe("place path card", () => {
           - a path card [connected top left right] at position (1, 0)
           - path card [connected left bottom] at position (2, 0)
   `, async () =>
+<<<<<<< HEAD
     placePathCard(
       source,
       PlacePathCardCommand({
@@ -372,6 +373,30 @@ describe("place path card", () => {
         card: PathCard.START,
       })
     )
+=======
+      placePathCard(
+        source,
+        PlacePathCardCommand(
+          {
+            position: [0, 0],
+            card: PathCard.START,
+          },
+          {
+            position: [1, 0],
+            card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+          }
+        )
+      )
+      .andThen(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [2, 0],
+            card: PathCard.CONNECTED_BOTTOM_LEFT,
+          })
+        )
+      )
+>>>>>>> ec9fc9b (change then to andThen)
       .then((result) =>
         result.match(
           (event) =>
@@ -385,12 +410,30 @@ describe("place path card", () => {
         )
       )
       .then(() =>
+<<<<<<< HEAD
         placePathCard(
           source,
           PlacePathCardCommand({
             position: [1, 0],
             card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
           })
+=======
+        source.read().then((events) =>
+          expect(events).toStrictEqual([
+            PathCardHasBeenPlacedEvent({
+              position: [0, 0],
+              card: PathCard.START,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [1, 0],
+              card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [2, 0],
+              card: PathCard.CONNECTED_BOTTOM_LEFT,
+            }),
+          ])
+>>>>>>> ec9fc9b (change then to andThen)
         )
           .then((result) =>
             result.match(
