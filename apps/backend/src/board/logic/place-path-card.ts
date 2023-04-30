@@ -7,7 +7,7 @@ import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import getCurrentPlacements from "./get-current-placements";
 import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
 import checkIfPositionIsAvailable from "./check-positions-is-available";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { always, error } from "~/utils";
 import { Placement } from "~/models/placement";
 
@@ -45,12 +45,11 @@ const appendEventToEventSource =
  */
 export const placePathCard: PlacePathCard = (source, command) =>
   getCurrentPlacements(source)
-    .andThen((board: Placement[]) => {
-      const checkExist = checkIfAnyPositionsHasBeenPlaced(board);
-      const checkConnected = checkIfPositionIsAvailable(board);
-      return checkExist(command);
-    })
-    //
+    .andThen((board) =>
+      okAsync(command)
+        .andThen(checkIfAnyPositionsHasBeenPlaced(board))
+        .andThen(checkIfPositionIsAvailable(board))
+    )
     .andThen(appendEventToEventSource(source, command));
 
 export default placePathCard;
