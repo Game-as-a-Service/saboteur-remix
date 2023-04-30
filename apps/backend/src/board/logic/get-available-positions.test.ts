@@ -21,21 +21,18 @@ describe("get available positions", () => {
         get available positions
       then:
         positions includes
+          - position ( 1, 0)
+          - position (-1, 0)
           - position ( 0, 1)
           - position ( 0,-1)
-          - position (-1, 0)
-          - position ( 1, 0)
   `, () => {
     expect(
-      getAvailablePositions([
-        { position: [0, 0], card: PathCard.START },
-        //
-      ])
+      getAvailablePositions([{ position: [0, 0], card: PathCard.START }])
     ).toIncludeSameMembers([
-      expect.toIncludeAllMembers([0, 1]),
-      expect.toIncludeAllMembers([0, -1]),
-      expect.toIncludeAllMembers([-1, 0]),
-      expect.toIncludeAllMembers([1, 0]),
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
     ]);
   });
 
@@ -48,9 +45,9 @@ describe("get available positions", () => {
         get available positions
       then:
         positions includes
+          - position (-1, 0)
           - position ( 0, 1)
           - position ( 0,-1)
-          - position (-1, 0)
   `, () => {
     expect(
       getAvailablePositions([
@@ -58,9 +55,9 @@ describe("get available positions", () => {
         { position: [1, 0], card: PathCard.DEADEND_CROSS },
       ])
     ).toIncludeSameMembers([
-      expect.toIncludeAllMembers([0, 1]),
-      expect.toIncludeAllMembers([0, -1]),
-      expect.toIncludeAllMembers([-1, 0]),
+      [-1, 0],
+      [0, 1],
+      [0, -1],
     ]);
   });
 
@@ -74,11 +71,11 @@ describe("get available positions", () => {
         get available positions
       then:
         positions includes
-          - position ( 0,-1)
-          - position (-1, 0)
           - position ( 1, 0)
-          - position ( 1, 2)
+          - position (-1, 0)
+          - position ( 0,-1)
           - position ( 2, 1)
+          - position ( 1, 2)
   `, () => {
     expect(
       getAvailablePositions([
@@ -87,11 +84,11 @@ describe("get available positions", () => {
         { position: [1, 1], card: PathCard.CONNECTED_TOP_LEFT_RIGHT },
       ])
     ).toIncludeSameMembers([
-      expect.toIncludeAllMembers([0, -1]),
-      expect.toIncludeAllMembers([-1, 0]),
-      expect.toIncludeAllMembers([1, 0]),
-      expect.toIncludeAllMembers([1, 2]),
-      expect.toIncludeAllMembers([2, 1]),
+      [1, 0],
+      [-1, 0],
+      [0, -1],
+      [2, 1],
+      [1, 2],
     ]);
   });
 
@@ -105,8 +102,8 @@ describe("get available positions", () => {
       then:
         positions includes
           - position (1, 0)
+          - position (-1,0)
           - position (0, 1)
-          - position (0,-1)
   `, () => {
     expect(
       getAvailablePositions([
@@ -114,9 +111,9 @@ describe("get available positions", () => {
         { position: [0, -1], card: PathCard.DEADEND_TOP_LEFT_RIGHT },
       ])
     ).toIncludeSameMembers([
-      expect.toIncludeAllMembers([1, 0]),
-      expect.toIncludeAllMembers([0, 1]),
-      expect.toIncludeAllMembers([0, -1]),
+      [1, 0],
+      [-1, 0],
+      [0, 1],
     ]);
   });
 });
