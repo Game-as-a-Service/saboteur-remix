@@ -361,6 +361,8 @@ describe("place path card", () => {
           - path card [connected left bottom] at position (2, 0)
       - event source should includes
         - path card has been placed event with
+          - a start card at position (0, 0)
+          - a path card [connected top left right] at position (1, 0)
           - path card [connected left bottom] at position (2, 0)
   `, async () =>
       placePathCard(
@@ -376,7 +378,7 @@ describe("place path card", () => {
           }
         )
       )
-      .then(() =>
+      .andThen(() =>
         placePathCard(
           source,
           PlacePathCardCommand({
@@ -400,6 +402,14 @@ describe("place path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
+            PathCardHasBeenPlacedEvent({
+              position: [0, 0],
+              card: PathCard.START,
+            }),
+            PathCardHasBeenPlacedEvent({
+              position: [1, 0],
+              card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+            }),
             PathCardHasBeenPlacedEvent({
               position: [2, 0],
               card: PathCard.CONNECTED_BOTTOM_LEFT,
