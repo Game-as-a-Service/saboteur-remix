@@ -1,7 +1,6 @@
 import type { EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
 import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync, err, ok } from "neverthrow";
 import { prop, error, always } from "~/utils";
@@ -10,19 +9,30 @@ import * as Array from "fp-ts/Array";
 import * as Either from "fp-ts/Either";
 import getAvailablePositions from "./get-available-positions";
 
-const PositionIsNotValidError = error("PositionIsNotValidError");
-type PositionIsNotValidError = ReturnType<typeof PositionIsNotValidError>;
-export interface PositionIsNotValidErrors extends AggregateError {
-  errors: PositionIsNotValidError[];
-}
+const PositionIsNotConnectStartError = error("PositionIsNotConnectSourceError");
+type PositionIsNotConnectStartError = ReturnType<
+  typeof PositionIsNotConnectStartError
+>;
+
+const PositionIsNotConnectNeighborError = error(
+  "PositionIsNotConnectNeighborError"
+);
+type PositionIsNotConnectNeighborError = ReturnType<
+  typeof PositionIsNotConnectNeighborError
+>;
+
 export type CheckPositionsIsNotConnectedError =
-  | PositionIsNotValidErrors
-  | GetCurrentPlacementsError;
+  | PositionIsNotConnectStartError
+  | PositionIsNotConnectNeighborError;
+export interface PositionIsNotConnectedErrors extends AggregateError {
+  errors: CheckPositionsIsNotConnectedError[];
+}
+
 export interface CheckPositionsIsAvailable {
   (
     repository: EventSource<PathCardHasBeenPlacedEvent>,
     command: PlacePathCardCommand
-  ): ResultAsync<PlacePathCardCommand, CheckPositionsIsNotConnectedError>;
+  ): ResultAsync<PlacePathCardCommand, PositionIsNotConnectedErrors>;
 }
 
 /**
@@ -45,7 +55,7 @@ const ifNotAvailable = Either.fromPredicate<Placement[], AggregateError>(
   (placements) =>
     AggregateError(
       placements.map((placement) =>
-        PositionIsNotValidError(
+        PositionIsNotConnectStartError(
           `the path card ${placement.card} cannot be placed at position (${placement.position})`
         )
       )

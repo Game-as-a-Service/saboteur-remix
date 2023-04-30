@@ -2,7 +2,7 @@ import type { EventSource } from "~/models/event";
 import type { PlacePathCardCommand } from "~/board/command";
 import type { PositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
 import type { GetCurrentPlacementsError } from "./get-current-placements";
-import type { PositionIsNotValidErrors } from "./check-positions-is-available";
+import type { PositionIsNotConnectedErrors } from "./check-positions-is-available";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import getCurrentPlacements from "./get-current-placements";
 import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
@@ -16,7 +16,7 @@ export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
 export type PlacePathCardError =
   | GetCurrentPlacementsError
   | PositionsHasBeenPlacedError
-  | PositionIsNotValidErrors
+  | PositionIsNotConnectedErrors
   | RepositoryWriteError;
 export interface PlacePathCard {
   (

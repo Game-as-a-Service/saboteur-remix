@@ -1,7 +1,6 @@
 import type { EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
 import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync, err, ok } from "neverthrow";
 import { prop, error, always } from "~/utils";
