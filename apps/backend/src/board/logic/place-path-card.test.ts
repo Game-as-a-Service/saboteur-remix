@@ -234,7 +234,7 @@ describe("place path card", () => {
         )
       ));
 
-  test.todo(`
+  test(`
     given:
       a board with
         - a start card at position (0, 0)
@@ -245,7 +245,46 @@ describe("place path card", () => {
         path card [connected bottom right] at position (1, 0)
     then:
       the path card cannot be placed.
-  `);
+  `, () =>
+    Promise.resolve()
+      .then(() => {
+        source.append(
+          PathCardHasBeenPlacedEvent({
+            position: [0, 0],
+            card: PathCard.START,
+          })
+        );
+        source.append(
+          PathCardHasBeenPlacedEvent({
+            position: [0, 1],
+            card: PathCard.CONNECTED_BOTTOM_RIGHT,
+          })
+        );
+        source.append(
+          PathCardHasBeenPlacedEvent({
+            position: [1, 1],
+            card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+          })
+        );
+      })
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [1, 0],
+            card: PathCard.CONNECTED_BOTTOM_RIGHT,
+          })
+        )
+      )
+      .then((result) =>
+        result.match(never, (error) =>
+          expect(error).toStrictEqual(
+            AggregateError([
+              "the path card connected cross cannot be placed at position (1,0)",
+            ])
+          )
+        )
+      ));
 
   test.todo(`
     given:
