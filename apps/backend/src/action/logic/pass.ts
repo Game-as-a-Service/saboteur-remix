@@ -21,7 +21,7 @@ const appendEventToEventSource = (
   command: PassCommand
 ) =>
   ResultAsync.fromPromise(
-    source.append(TurnHasBeenPassedEvent(command.data.card, null)),
+    source.append(TurnHasBeenPassedEvent(command.data.card)),
     always(RepositoryWriteError("failed to write event to repository"))
   );
 
@@ -30,9 +30,8 @@ const appendEventToEventSource = (
  * passes the turn to the next player.
  *
  * trigger situation:
- * 1. no deck
- * 2. no hands
- * 3. discard card
+ * 1. no hands
+ * 2. discard card
  *
  * *param* source - event source
  * *param* command - pass command
@@ -48,15 +47,6 @@ export const pass: Pass = (source, command) =>
    *    - can Pass
    *  else not find
    *    - Error
-   *
-   * 3. check deck have cards left
-   *  if deck have cards left
-   *    - draw a card and give the player
-   *  else
-   *    - return giveCard null
-   *  - does not affect whether to pass
-   *  - maybe can remove
-   *  > Hand over to the next event for execution
    **/
   errAsync(new Error("not implemented"));
 

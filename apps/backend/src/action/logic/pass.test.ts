@@ -28,17 +28,15 @@ describe("pass", () => {
           - hands is empty array
         a discord cord with
           - empty  { null }
-        event source with
-          - deck is empty array
       when:
         pass the current turn
       then:
         - should return
           - turn has been passed with
-            - discard card is null, give card is null
+            - discard card is null
         - event source should includes
           - turn has been passed event with
-            - discard card is null, give card is null
+            - discard card is null
   `);
 
   test.todo(`
@@ -47,18 +45,15 @@ describe("pass", () => {
           - hands is empty array
         a discord cord with
           - empty  { null }
-        event source with
-          - deck with cards remaining
       when:
         pass the current turn
       then:
         - should return
           - turn has been passed with
-            - discard card is null, give a card is {PathCard} (from any PathCard in the deck)
+            - discard card is null
         - event source should includes
           - turn has been passed event with
-            // 從 deck 取出一張 PathCard ( 抽牌事件還沒實作 )
-            - discard card is null, give a card is {PathCard} (from the previously drawn card in the last event)
+            - discard card is null
   `);
 
   test.todo(`
@@ -67,8 +62,6 @@ describe("pass", () => {
           - hands with cards remaining
         a discord cord with
           - empty  { null }
-        event source with
-          - deck with cards remaining
       when:
         pass the current turn
       then:
@@ -83,8 +76,6 @@ describe("pass", () => {
           - hands with cards remaining
         a discord cord with
           - the card not from this player hands
-        event source with
-          - deck with cards remaining
       when:
         pass the current turn
       then:
@@ -99,8 +90,6 @@ describe("pass", () => {
           - hands is empty array
         a discord cord with
           - any {PathCard}
-        event source with
-          - deck with cards remaining
       when:
         pass the current turn
       then:
@@ -122,10 +111,9 @@ describe("pass", () => {
       then:
         - should return
           - turn has been passed with
-            - discard a card is {PathCard}, give a card is {PathCard} (from any PathCard in the deck)
+            - discard a card is {PathCard}
         - event source should includes
           - turn has been passed event with
-            // 從 deck 取出一張 PathCard ( 抽牌事件還沒實作 )
-            - discard a card is {PathCard}, give a card is {PathCard} (from the previously drawn card in the last event)
+            - discard a card is {PathCard}
   `);
 });

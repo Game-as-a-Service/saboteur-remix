@@ -5,7 +5,6 @@ export const TurnHasBeenPassedEventSchema = z.object({
   type: z.literal("turn has been passed"),
   data: z.object({
     discardCard: z.nativeEnum(PathCard).nullable(),
-    giveCard: z.nativeEnum(PathCard).nullable(),
   }),
 });
 
@@ -20,8 +19,7 @@ export function isTurnHasBeenPassedEvent(
 }
 
 export function TurnHasBeenPassedEvent(
-  discardCard: PathCard | null,
-  giveCard: PathCard | null
+  discardCard: PathCard | null
 ): TurnHasBeenPassedEvent {
-  return { type: "turn has been passed", data: { discardCard, giveCard } };
+  return { type: "turn has been passed", data: { discardCard } };
 }
