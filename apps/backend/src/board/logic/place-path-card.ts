@@ -2,14 +2,13 @@ import type { EventSource } from "~/models/event";
 import type { PlacePathCardCommand } from "~/board/command";
 import type { PositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
 import type { GetCurrentPlacementsError } from "./get-current-placements";
-import type { PositionIsNotConnectedErrors } from "./check-positions-is-available";
+import type { PositionIsNotConnectedErrors } from "./check-positions-is-connected";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import getCurrentPlacements from "./get-current-placements";
 import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
-import checkIfPositionIsAvailable from "./check-positions-is-available";
+import checkIfPositionIsConnected from "./check-positions-is-connected";
 import { ResultAsync, okAsync } from "neverthrow";
 import { always, error } from "~/utils";
-import { Placement } from "~/models/placement";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
@@ -48,7 +47,7 @@ export const placePathCard: PlacePathCard = (source, command) =>
     .andThen((board) =>
       okAsync(command)
         .andThen(checkIfAnyPositionsHasBeenPlaced(board))
-        .andThen(checkIfPositionIsAvailable(board))
+        .andThen(checkIfPositionIsConnected(board))
     )
     .andThen(appendEventToEventSource(source, command));
 

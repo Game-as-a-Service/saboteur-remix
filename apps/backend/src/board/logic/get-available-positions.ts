@@ -6,64 +6,63 @@ import { flow, pipe } from "fp-ts/lib/function";
 import { always, prop } from "~/utils";
 import * as Vec from "~/models/vec";
 import { PathCard } from "~/models/card";
-import { Direction } from "~/models/direction";
+import { Path } from "~/models/direction";
 
 export type Position = Vec.Vec2;
-const PathCardRule: Record<PathCard, Direction[]> = Object.freeze({
-  [PathCard.START]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
+const PathCardRule: Record<PathCard, Position[]> = Object.freeze({
+  [PathCard.START]: [Path.ORIGIN, Path.TOP, Path.BOTTOM, Path.LEFT, Path.RIGHT],
   [PathCard.GOAL_GOLD]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
+    Path.ORIGIN,
+    Path.TOP,
+    Path.BOTTOM,
+    Path.LEFT,
+    Path.RIGHT,
   ],
-  [PathCard.GOAL_COAL_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
-  [PathCard.GOAL_COAL_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
+  [PathCard.GOAL_COAL_BOTTOM_RIGHT]: [Path.ORIGIN, Path.BOTTOM, Path.RIGHT],
+  [PathCard.GOAL_COAL_BOTTOM_LEFT]: [Path.ORIGIN, Path.BOTTOM, Path.LEFT],
 
-  [PathCard.CONNECTED_TOP_BOTTOM]: [Direction.TOP, Direction.BOTTOM],
+  [PathCard.CONNECTED_TOP_BOTTOM]: [Path.ORIGIN, Path.TOP, Path.BOTTOM],
   [PathCard.CONNECTED_TOP_BOTTOM_RIGHT]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.RIGHT,
+    Path.ORIGIN,
+    Path.TOP,
+    Path.BOTTOM,
+    Path.RIGHT,
   ],
   [PathCard.CONNECTED_CROSS]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
+    Path.ORIGIN,
+    Path.TOP,
+    Path.BOTTOM,
+    Path.LEFT,
+    Path.RIGHT,
   ],
   [PathCard.CONNECTED_TOP_LEFT_RIGHT]: [
-    Direction.TOP,
-    Direction.LEFT,
-    Direction.RIGHT,
+    Path.ORIGIN,
+    Path.TOP,
+    Path.LEFT,
+    Path.RIGHT,
   ],
-  [PathCard.CONNECTED_LEFT_RIGHT]: [Direction.LEFT, Direction.RIGHT],
-  [PathCard.CONNECTED_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
-  [PathCard.CONNECTED_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
+  [PathCard.CONNECTED_LEFT_RIGHT]: [Path.ORIGIN, Path.LEFT, Path.RIGHT],
+  [PathCard.CONNECTED_BOTTOM_RIGHT]: [Path.ORIGIN, Path.BOTTOM, Path.RIGHT],
+  [PathCard.CONNECTED_BOTTOM_LEFT]: [Path.ORIGIN, Path.BOTTOM, Path.LEFT],
 
-  [PathCard.DEADEND_BOTTOM]: [],
-  [PathCard.DEADEND_TOP_BOTTOM]: [],
-  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: [],
-  [PathCard.DEADEND_CROSS]: [],
-  [PathCard.DEADEND_TOP_LEFT_RIGHT]: [],
-  [PathCard.DEADEND_LEFT_RIGHT]: [],
-  [PathCard.DEADEND_BOTTOM_RIGHT]: [],
-  [PathCard.DEADEND_BOTTOM_LEFT]: [],
-  [PathCard.DEADEND_LEFT]: [],
+  [PathCard.DEADEND_BOTTOM]: [Path.BOTTOM],
+  [PathCard.DEADEND_TOP_BOTTOM]: [Path.TOP, Path.BOTTOM],
+  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: [Path.TOP, Path.BOTTOM, Path.RIGHT],
+  [PathCard.DEADEND_CROSS]: [Path.TOP, Path.BOTTOM, Path.LEFT, Path.RIGHT],
+  [PathCard.DEADEND_TOP_LEFT_RIGHT]: [Path.TOP, Path.LEFT, Path.RIGHT],
+  [PathCard.DEADEND_LEFT_RIGHT]: [Path.LEFT, Path.RIGHT],
+  [PathCard.DEADEND_BOTTOM_RIGHT]: [Path.BOTTOM, Path.RIGHT],
+  [PathCard.DEADEND_BOTTOM_LEFT]: [Path.BOTTOM, Path.LEFT],
+  [PathCard.DEADEND_LEFT]: [Path.LEFT],
 });
 
 /**
  * lists all available positions by given path
  */
 function available(path: Placement): Position[] {
-  return PathCardRule[path.card]
-    .map(Vec.radianToVec)
-    .map(Vec.add(path.position));
+  const directions = PathCardRule[path.card];
+  if (!directions.includes(Path.ORIGIN)) return [];
+  return directions.map(Vec.add(path.position));
 }
 
 /**
