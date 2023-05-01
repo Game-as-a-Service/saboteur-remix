@@ -44,6 +44,12 @@ export enum RoleCard {
   Saboteur = "saboteur",
 }
 
+export const GoalCards = Object.freeze([
+  PathCard.GOAL_GOLD,
+  PathCard.GOAL_COAL_BOTTOM_RIGHT,
+  PathCard.GOAL_COAL_BOTTOM_LEFT,
+]);
+
 export const CardCount = Object.freeze({
   [PathCard.START]: 1,
   [PathCard.GOAL_GOLD]: 1,

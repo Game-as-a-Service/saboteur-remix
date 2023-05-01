@@ -1,25 +1,9 @@
-import type { EventSource } from "~/models/event";
 import { PathCard } from "~/models/card";
 import { never } from "~/utils";
 import { PlacePathCardCommand } from "~/board/command";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import checkPositionsHasBeenPlaced from "./check-positions-has-been-placed";
+import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
 
 describe("check positions has been placed", () => {
-  let source: EventSource<PathCardHasBeenPlacedEvent>;
-
-  beforeEach(() => {
-    let store: unknown[] = [];
-    const append = jest.fn().mockImplementation((...args: unknown[]) => {
-      store = store.concat(...args);
-      return Promise.resolve(args);
-    });
-    const read = jest.fn().mockImplementation(() => {
-      return Promise.resolve(store);
-    });
-    source = { append, read, on: jest.fn(), off: jest.fn() };
-  });
-
   test(`
       given:
         an empty board
@@ -29,27 +13,24 @@ describe("check positions has been placed", () => {
         should return place path card command
     `, () =>
     Promise.resolve(
-      checkPositionsHasBeenPlaced(
-        source,
+      checkIfAnyPositionsHasBeenPlaced([])(
         PlacePathCardCommand({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
         })
       )
-    )
-      //
-      .then((result) =>
-        result.match(
-          (command) =>
-            expect(command).toStrictEqual(
-              PlacePathCardCommand({
-                card: PathCard.CONNECTED_CROSS,
-                position: [0, 0],
-              })
-            ),
-          never
-        )
-      ));
+    ).then((result) =>
+      result.match(
+        (command) =>
+          expect(command).toStrictEqual(
+            PlacePathCardCommand({
+              card: PathCard.CONNECTED_CROSS,
+              position: [0, 0],
+            })
+          ),
+        never
+      )
+    ));
 
   test(`
       given:
@@ -61,35 +42,25 @@ describe("check positions has been placed", () => {
       expect:
         should throw placement has been placed error
     `, () =>
-    Promise.resolve()
-      .then(() =>
-        source.append(
-          PathCardHasBeenPlacedEvent({
-            card: PathCard.CONNECTED_CROSS,
-            position: [0, 0],
-          })
+    Promise.resolve(
+      checkIfAnyPositionsHasBeenPlaced([
+        {
+          card: PathCard.CONNECTED_CROSS,
+          position: [0, 0],
+        },
+      ])(
+        PlacePathCardCommand({
+          card: PathCard.CONNECTED_CROSS,
+          position: [0, 0],
+        })
+      )
+    ).then((result) =>
+      result.match(never, (error) =>
+        expect(error).toStrictEqual(
+          AggregateError([
+            `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`,
+          ])
         )
       )
-      .then(() =>
-        checkPositionsHasBeenPlaced(
-          source,
-          PlacePathCardCommand({
-            card: PathCard.CONNECTED_CROSS,
-            position: [0, 0],
-          })
-        )
-      )
-      .then((result) =>
-        result.match(
-          never,
-          (error) =>
-            expect(error).toStrictEqual(
-              AggregateError([
-                `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`,
-                //
-              ])
-            )
-          //
-        )
-      ));
+    ));
 });

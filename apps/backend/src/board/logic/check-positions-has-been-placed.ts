@@ -1,10 +1,8 @@
 import type { EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
 import type { PathCardHasBeenPlacedEvent } from "~/board/event";
 import { ResultAsync, err, ok } from "neverthrow";
-import getCurrentPlacements from "~/board/logic/get-current-placements";
 import { prop, error, always } from "~/utils";
 import { flow, pipe } from "fp-ts/lib/function";
 import * as Vec from "~/models/vec";
@@ -16,14 +14,11 @@ type PositionHasBeenPlacedError = ReturnType<typeof PositionHasBeenPlacedError>;
 export interface PositionsHasBeenPlacedError extends AggregateError {
   errors: PositionHasBeenPlacedError[];
 }
-export type CheckPositionsHasBeenPlacedError =
-  | PositionsHasBeenPlacedError
-  | GetCurrentPlacementsError;
 export interface CheckPositionsHasBeenPlaced {
   (
     repository: EventSource<PathCardHasBeenPlacedEvent>,
     command: PlacePathCardCommand
-  ): ResultAsync<PlacePathCardCommand, CheckPositionsHasBeenPlacedError>;
+  ): ResultAsync<PlacePathCardCommand, PositionsHasBeenPlacedError>;
 }
 
 const filterPlacementsByPositionHasBeenTaken = (board: Placement[]) =>
@@ -51,8 +46,15 @@ const ifThereNoPlacementHasBeenTaken = Either.fromPredicate<
   //
 );
 
+/**
+ * *description*
+ * check if place path card command placements that has been taken in the board
+ *
+ * *param* source - event source
+ * *param* command - place path card command
+ */
 const checkIfAnyPositionsHasBeenPlaced =
-  (command: PlacePathCardCommand) => (board: Placement[]) =>
+  (board: Placement[]) => (command: PlacePathCardCommand) =>
     pipe(
       [command.data],
       filterPlacementsByPositionHasBeenTaken(board),
@@ -64,19 +66,4 @@ const checkIfAnyPositionsHasBeenPlaced =
       )
     );
 
-/**
- * *description*
- * check if place path card command placements that has been taken,
- *
- * *param* source - event source
- * *param* command - place path card command
- */
-export const checkPositionsHasBeenPlaced: CheckPositionsHasBeenPlaced = (
-  source,
-  command
-) =>
-  getCurrentPlacements(source)
-    //
-    .andThen(checkIfAnyPositionsHasBeenPlaced(command));
-
-export default checkPositionsHasBeenPlaced;
+export default checkIfAnyPositionsHasBeenPlaced;

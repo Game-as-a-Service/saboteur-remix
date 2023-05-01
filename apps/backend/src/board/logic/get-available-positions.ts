@@ -8,62 +8,126 @@ import * as Vec from "~/models/vec";
 import { PathCard } from "~/models/card";
 import { Direction } from "~/models/direction";
 
-type Position = Vec.Vec2;
-const PathCardRule: Record<PathCard, Direction[]> = Object.freeze({
-  [PathCard.START]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.GOAL_GOLD]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.GOAL_COAL_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
-  [PathCard.GOAL_COAL_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
+export type Position = Vec.Vec2;
+type Rule = {
+  directions: Direction[];
+  origin: boolean;
+};
+export const PathCardRule: Record<PathCard, Rule> = Object.freeze({
+  [PathCard.START]: {
+    directions: [
+      Direction.TOP,
+      Direction.BOTTOM,
+      Direction.LEFT,
+      Direction.RIGHT,
+    ],
+    origin: true,
+  },
+  [PathCard.GOAL_GOLD]: {
+    directions: [
+      Direction.TOP,
+      Direction.BOTTOM,
+      Direction.LEFT,
+      Direction.RIGHT,
+    ],
+    origin: true,
+  },
+  [PathCard.GOAL_COAL_BOTTOM_RIGHT]: {
+    directions: [Direction.BOTTOM, Direction.RIGHT],
+    origin: true,
+  },
+  [PathCard.GOAL_COAL_BOTTOM_LEFT]: {
+    directions: [Direction.BOTTOM, Direction.LEFT],
+    origin: true,
+  },
+  [PathCard.CONNECTED_TOP_BOTTOM]: {
+    directions: [Direction.TOP, Direction.BOTTOM],
+    origin: true,
+  },
+  [PathCard.CONNECTED_TOP_BOTTOM_RIGHT]: {
+    directions: [Direction.TOP, Direction.BOTTOM, Direction.RIGHT],
+    origin: true,
+  },
+  [PathCard.CONNECTED_CROSS]: {
+    directions: [
+      Direction.TOP,
+      Direction.BOTTOM,
+      Direction.LEFT,
+      Direction.RIGHT,
+    ],
+    origin: true,
+  },
+  [PathCard.CONNECTED_TOP_LEFT_RIGHT]: {
+    directions: [Direction.TOP, Direction.LEFT, Direction.RIGHT],
+    origin: true,
+  },
+  [PathCard.CONNECTED_LEFT_RIGHT]: {
+    directions: [Direction.LEFT, Direction.RIGHT],
+    origin: true,
+  },
+  [PathCard.CONNECTED_BOTTOM_RIGHT]: {
+    directions: [Direction.BOTTOM, Direction.RIGHT],
+    origin: true,
+  },
+  [PathCard.CONNECTED_BOTTOM_LEFT]: {
+    directions: [Direction.BOTTOM, Direction.LEFT],
+    origin: true,
+  },
 
-  [PathCard.CONNECTED_TOP_BOTTOM]: [Direction.TOP, Direction.BOTTOM],
-  [PathCard.CONNECTED_TOP_BOTTOM_RIGHT]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.RIGHT,
-  ],
-  [PathCard.CONNECTED_CROSS]: [
-    Direction.TOP,
-    Direction.BOTTOM,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.CONNECTED_TOP_LEFT_RIGHT]: [
-    Direction.TOP,
-    Direction.LEFT,
-    Direction.RIGHT,
-  ],
-  [PathCard.CONNECTED_LEFT_RIGHT]: [Direction.LEFT, Direction.RIGHT],
-  [PathCard.CONNECTED_BOTTOM_RIGHT]: [Direction.BOTTOM, Direction.RIGHT],
-  [PathCard.CONNECTED_BOTTOM_LEFT]: [Direction.BOTTOM, Direction.LEFT],
-
-  [PathCard.DEADEND_BOTTOM]: [],
-  [PathCard.DEADEND_TOP_BOTTOM]: [],
-  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: [],
-  [PathCard.DEADEND_CROSS]: [],
-  [PathCard.DEADEND_TOP_LEFT_RIGHT]: [],
-  [PathCard.DEADEND_LEFT_RIGHT]: [],
-  [PathCard.DEADEND_BOTTOM_RIGHT]: [],
-  [PathCard.DEADEND_BOTTOM_LEFT]: [],
-  [PathCard.DEADEND_LEFT]: [],
+  [PathCard.DEADEND_BOTTOM]: {
+    directions: [Direction.BOTTOM],
+    origin: false,
+  },
+  [PathCard.DEADEND_TOP_BOTTOM]: {
+    directions: [Direction.TOP, Direction.BOTTOM],
+    origin: false,
+  },
+  [PathCard.DEADEND_TOP_BOTTOM_RIGHT]: {
+    directions: [Direction.TOP, Direction.BOTTOM, Direction.RIGHT],
+    origin: false,
+  },
+  [PathCard.DEADEND_CROSS]: {
+    directions: [
+      Direction.TOP,
+      Direction.BOTTOM,
+      Direction.LEFT,
+      Direction.RIGHT,
+    ],
+    origin: false,
+  },
+  [PathCard.DEADEND_TOP_LEFT_RIGHT]: {
+    directions: [Direction.TOP, Direction.LEFT, Direction.RIGHT],
+    origin: false,
+  },
+  [PathCard.DEADEND_LEFT_RIGHT]: {
+    directions: [Direction.LEFT, Direction.RIGHT],
+    origin: false,
+  },
+  [PathCard.DEADEND_BOTTOM_RIGHT]: {
+    directions: [Direction.BOTTOM, Direction.RIGHT],
+    origin: false,
+  },
+  [PathCard.DEADEND_BOTTOM_LEFT]: {
+    directions: [Direction.BOTTOM, Direction.LEFT],
+    origin: false,
+  },
+  [PathCard.DEADEND_LEFT]: {
+    directions: [Direction.LEFT],
+    origin: false,
+  },
 });
+
+export const directions2Vec = (directions: Direction[]) =>
+  directions.map(Vec.radianToVec);
 
 /**
  * lists all available positions by given path
  */
-function available(path: Placement): Position[] {
-  return PathCardRule[path.card]
-    .map(Vec.radianToVec)
-    .map(Vec.add(path.position));
+export function available(path: Placement): Position[] {
+  const rule = PathCardRule[path.card];
+  return rule.origin
+    ? directions2Vec(rule.directions).map(Vec.add(path.position))
+    : [];
 }
 
 /**
