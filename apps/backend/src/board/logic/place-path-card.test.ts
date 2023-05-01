@@ -224,30 +224,33 @@ describe("place path card", () => {
   `);
 
   test(`
-    given:
-      a board with
-        - a start card at position (0, 0)
-        - a path card [deadend top left right] at position (0, -1)
-    when:
-      place
-        path card [deadend left right] at position (1, -1)
-    then:
-      the path card cannot be placed.
-  `, () =>
+  given:
+    a board with
+      - a start card at position (0, 0)
+      - a path card [deadend top left right] at position (0, -1)
+  when:
+    place
+      path card [deadend left right] at position (1, -1)
+  then:
+    the path card cannot be placed.
+`, () =>
     Promise.resolve()
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand(
-            {
-              position: [0, 0],
-              card: PathCard.START,
-            },
-            {
-              position: [0, -1],
-              card: PathCard.DEADEND_TOP_LEFT_RIGHT,
-            }
-          )
+          PlacePathCardCommand({
+            position: [0, 0],
+            card: PathCard.START,
+          })
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, -1],
+            card: PathCard.DEADEND_TOP_LEFT_RIGHT,
+          })
         )
       )
       .then(() =>
