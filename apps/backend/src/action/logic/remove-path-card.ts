@@ -3,6 +3,7 @@ import { EventSource } from "~/models/event";
 import { RockfallCommand } from "~/action/command";
 import { PathCardHasBeenRemovedEvent } from "~/action/event";
 import type { BoardEvent } from "~/board/event";
+import type { RepositoryReadError } from "~/board/logic/get-current-placements";
 import getCurrentPlacements from "~/board/logic/get-current-placements";
 import { Placement } from "~/models/placement";
 import { flow, pipe } from "fp-ts/lib/function";
@@ -12,6 +13,8 @@ import * as Vec from "~/models/vec";
 import * as Array from "fp-ts/Array";
 import * as Either from "fp-ts/Either";
 
+export type BoardCardEvent = BoardEvent | PathCardHasBeenRemovedEvent;
+
 const TargetCannotBeRemovedError = error("TargetCannotBeRemovedError");
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
@@ -20,16 +23,17 @@ export type TargetCannotBeRemovedError = ReturnType<
 >;
 export type RemovePathCardError =
   | TargetCannotBeRemovedError
-  | RepositoryWriteError;
+  | RepositoryWriteError
+  | RepositoryReadError;
 
 export interface RemovePathCard {
-  (source: EventSource<BoardEvent>, command: RockfallCommand): ResultAsync<
-    PathCardHasBeenRemovedEvent,
-    Error
+  (source: EventSource<BoardCardEvent>, command: RockfallCommand): ResultAsync<
+    BoardCardEvent[],
+    RemovePathCardError
   >;
 }
 
-const NonRemovablePathCard = new Set([
+const NonRemovablePathCard = Object.freeze([
   PathCard.START,
   PathCard.GOAL_COAL_BOTTOM_LEFT,
   PathCard.GOAL_COAL_BOTTOM_RIGHT,
@@ -40,7 +44,7 @@ const isRemovablePathCard = Either.fromPredicate<
   Placement,
   TargetCannotBeRemovedError
 >(
-  (placement) => !NonRemovablePathCard.has(placement.card),
+  (placement) => !NonRemovablePathCard.includes(placement.card),
   (placement) =>
     TargetCannotBeRemovedError(
       `the path card ${placement.card} cannot be removed`
@@ -66,12 +70,10 @@ const checkPathCardHasBeenPlaced =
     );
 
 const appendEventToEventSource =
-  (source: EventSource<BoardEvent>, command: RockfallCommand) => () =>
-    pipe(PathCardHasBeenRemovedEvent(command.data), (event) =>
-      ResultAsync.fromPromise<PathCardHasBeenRemovedEvent, Error>(
-        Promise.resolve(event),
-        always(RepositoryWriteError("failed to write event to repository"))
-      )
+  (source: EventSource<BoardCardEvent>, command: RockfallCommand) => () =>
+    ResultAsync.fromPromise(
+      source.append(PathCardHasBeenRemovedEvent(command.data)),
+      always(RepositoryWriteError("failed to write event to repository"))
     );
 
 /**
@@ -84,10 +86,10 @@ const appendEventToEventSource =
 
 export const removePathCard: RemovePathCard = (source, command) =>
   //@todo: read from event source
-  //@todo: check path card has been placed
-  //@todo: append event to event source
-  getCurrentPlacements(source)
+  getCurrentPlacements(source as EventSource<BoardEvent>)
+    //@todo: check path card has been placed
     .andThen(checkPathCardHasBeenPlaced(command))
+    //@todo: append event to event source
     .andThen(appendEventToEventSource(source, command));
 
 export default removePathCard;
