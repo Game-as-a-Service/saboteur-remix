@@ -298,17 +298,54 @@ describe("place path card", () => {
       the path card cannot be placed.
   `);
 
-  test.todo(`
-    given:
-      a board with
-        - a start card at position (0, 0)
-        - a path card [deadend top left right] at position (0, -1)
-    when:
-      place
-        path card [deadend left right] at position (1, -1)
-    then:
-      the path card cannot be placed.
-  `);
+  test(`
+  given:
+    a board with
+      - a start card at position (0, 0)
+      - a path card [deadend top left right] at position (0, -1)
+  when:
+    place
+      path card [deadend left right] at position (1, -1)
+  then:
+    the path card cannot be placed.
+`, () =>
+    Promise.resolve()
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, 0],
+            card: PathCard.START,
+          })
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [0, -1],
+            card: PathCard.DEADEND_TOP_LEFT_RIGHT,
+          })
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [1, -1],
+            card: PathCard.DEADEND_LEFT_RIGHT,
+          })
+        )
+      )
+      .then((result) =>
+        result.match(never, (error) =>
+          expect(error).toStrictEqual(
+            AggregateError([
+              "the path card [deadend left right] cannot be placed at position (1, -1)",
+            ])
+          )
+        )
+      ));
 
   test.todo(`
     given:
