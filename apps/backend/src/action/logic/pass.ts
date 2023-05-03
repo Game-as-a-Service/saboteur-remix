@@ -37,11 +37,11 @@ const appendEventToEventSource = (
  * *param* command - pass command
  */
 export const pass: Pass = (source, command) =>
-  // @todo should validate user hands
+  // @todo should validate the user hands
   /**
    *
    * 1. check player have cards left
-   *  if player not cards left and discard card eq null
+   *  if the player has no cards left and the discard card eq null
    *    - can Pass
    *
    * 2. check player have the card
