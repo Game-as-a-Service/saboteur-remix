@@ -1,5 +1,5 @@
 import { vi, test, expect, describe } from "vitest";
-import type log from "./log.client";
+import type * as log from "./log.client";
 
 describe("log", () => {
   let logger: typeof log;

@@ -38,12 +38,3 @@ const groupBy =
 
 export const group = groupBy(printBy(console.group));
 export const groupCollapsed = groupBy(printBy(console.groupCollapsed));
-
-export default {
-  group,
-  groupCollapsed,
-  info,
-  warn,
-  debug,
-  error,
-};
