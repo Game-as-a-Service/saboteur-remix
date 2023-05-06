@@ -7,7 +7,11 @@ import {
 import { Server, Socket } from "socket.io";
 import BoardGateway from "~/board/gateway";
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: "*",
+  },
+})
 class EventsGateway {
   readonly logger = new Logger(EventsGateway.name);
 
