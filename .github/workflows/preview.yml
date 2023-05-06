@@ -47,13 +47,13 @@ jobs:
 
           if [[ ${{ env.app }} == *"backend"* ]]; then
             flyctl secrets --app ${{ env.app }} set REDIS_URL=${{ secrets.REDIS_URL }}
+            flyctl deploy ${{ inputs.working-directory }} --remote-only --app ${{ env.app }}
           fi
 
           if [[ ${{ env.app }} == *"frontend"* ]]; then
             flyctl secrets --app ${{ env.app }} set SOCKET_URL="https://${{ env.pr }}-backend.fly.dev/"
+            flyctl deploy --config apps/frontend/fly.toml --dockerfile apps/frontend/Dockerfile .
           fi
-
-          flyctl deploy ${{ inputs.working-directory }} --remote-only --app ${{ env.app }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
