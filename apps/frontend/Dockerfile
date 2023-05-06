@@ -1,7 +1,7 @@
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:alpine as build
+FROM node:lts-alpine as build
 RUN apk add --no-cache libc6-compat
 RUN apk update
 WORKDIR /app
@@ -17,7 +17,7 @@ RUN yarn install --production && yarn cache clean --force
 ###################
 # PRODUCTION
 ###################
-FROM node:alpine as production
+FROM node:lts-alpine as production
 RUN addgroup --system --gid 1001 remix
 RUN adduser --system --uid 1001 remix
 USER remix
