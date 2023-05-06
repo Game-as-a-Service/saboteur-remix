@@ -51,11 +51,10 @@ const isRemovablePathCard = Either.fromPredicate<
     )
 );
 
-const findPlacementByPosition =
-  (command: RockfallCommand) => (board: Placement[]) =>
-    Array.findFirst<Placement>(
-      flow(prop("position"), Vec.eq(command.data.position))
-    )(board);
+const findPlacementByPosition = (command: RockfallCommand) =>
+  Array.findFirst<Placement>(
+    flow(prop("position"), Vec.eq(command.data.position))
+  );
 
 const checkPathCardHasBeenPlaced =
   (command: RockfallCommand) => (board: Placement[]) =>
@@ -73,15 +72,12 @@ const appendEventToEventSource =
   (source: EventSource<BoardCardEvent>, command: RockfallCommand) => () =>
     pipe(
       PathCardHasBeenRemovedEvent(command.data),
-      async (event) => {
-        await source.append(event);
-        return event;
-      },
       (event) =>
         ResultAsync.fromPromise(
-          event,
+          source.append(event),
           always(RepositoryWriteError("failed to write event to repository"))
-        )
+        ).map(() => event)
+      //
     );
 
 /**
@@ -93,16 +89,8 @@ const appendEventToEventSource =
  */
 
 export const removePathCard: RemovePathCard = (source, command) =>
-  //@todo: read from event source
-  /**
-   * @question
-   *  Would it be possible to include events for removing cards in the BoardEvent type as well,
-   *  so that getCurrentPlacements can obtain the correct PathCard on the board?
-   */
   getCurrentPlacements(source as EventSource<BoardEvent>)
-    //@todo: check path card has been placed
     .andThen(checkPathCardHasBeenPlaced(command))
-    //@todo: append event to event source
     .andThen(appendEventToEventSource(source, command));
 
 export default removePathCard;
