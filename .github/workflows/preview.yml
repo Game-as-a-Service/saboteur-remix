@@ -36,6 +36,7 @@ jobs:
         run: |
           pr=$(echo "$GITHUB_HEAD_REF" | cut -d "/" -f 2 | tr '[:upper:]' '[:lower:]')
           app=$(echo "${{ inputs.working-directory }}" | cut -d "/" -f 2)
+          echo "pr=$pr" >> $GITHUB_ENV
           echo "app=$pr-$app" >> $GITHUB_ENV
 
       - name: 🚀 Deploy
@@ -44,7 +45,14 @@ jobs:
             flyctl apps create ${{ env.app }} --org saboteur-tw
           fi
 
-          flyctl secrets --app ${{ env.app }} set REDIS_URL=${{ secrets.REDIS_URL }}
+          if [[ ${{ env.app }} == *"backend"* ]]; then
+            flyctl secrets --app ${{ env.app }} set REDIS_URL=${{ secrets.REDIS_URL }}
+          fi
+
+          if [[ ${{ env.app }} == *"frontend"* ]]; then
+            flyctl secrets --app ${{ env.app }} set SOCKET_URL="https://${{ env.pr }}-backend.fly.dev/"
+          fi
+
           flyctl deploy ${{ inputs.working-directory }} --remote-only --app ${{ env.app }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
