@@ -25,8 +25,10 @@ async function bootstrap() {
   });
 
   app.useWebSocketAdapter(
-    createRedisStreamsAdapter(app, await redis(env.REDIS_URL))
-    //
+    createRedisStreamsAdapter(app, await redis(env.REDIS_URL), {
+      //@todo: production should be 30_000
+      heartbeatInterval: ~(1 << 31), // maximum to 32-bit signed integer
+    })
   );
 
   app.enableShutdownHooks();

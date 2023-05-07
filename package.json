@@ -12,15 +12,18 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "turbo run format"
   },
   "devDependencies": {
     "prettier": "latest",
-    "turbo": "^1.8.5"
+    "turbo": "^1.9.3"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {},
-  "packageManager": "yarn@1.22.11"
+  "packageManager": "yarn@1.22.11",
+  "volta": {
+    "node": "18.16.0"
+  }
 }

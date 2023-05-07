@@ -26,6 +26,14 @@ For developer who handle deployment:
 - Docker >= 20.10 [install](https://www.docker.com/)
 - flyctl stable 0.0.499 [install](https://fly.io/docs/hands-on/install-flyctl/)
 
+## Install
+
+Install all dependencies before running any command
+
+```bash
+yarn
+```
+
 ## Testing
 
 Run testing before you start anything

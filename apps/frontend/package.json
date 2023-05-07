@@ -1,55 +1,65 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
   "sideEffects": false,
+  "version": "0.0.0",
   "scripts": {
     "build": "remix build",
+    "deploy": "fly deploy --remote-only",
     "dev": "remix dev",
     "start": "remix-serve build",
-    "format": "prettier --write .",
+    "format": "prettier --no-error-on-unmatched-pattern --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "test": "vitest --run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc"
   },
-  "prettier": {},
-  "eslintIgnore": [
-    "/node_modules",
-    "/build",
-    "/public/build"
-  ],
   "dependencies": {
-    "@remix-run/node": "^1.14.3",
-    "@remix-run/react": "^1.14.3",
-    "@remix-run/serve": "^1.14.3",
-    "isbot": "^3.6.5",
+    "@packages/socket": "*",
+    "@reduxjs/toolkit": "^1.9.5",
+    "@remix-run/css-bundle": "^1.16.0",
+    "@remix-run/node": "^1.16.0",
+    "@remix-run/react": "^1.16.0",
+    "@remix-run/serve": "^1.16.0",
+    "chalk": "^5.2.0",
+    "immer": "^10.0.1",
+    "isbot": "^3.6.10",
+    "ramda": "^0.29.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "socket.io-client": "^4.6.1",
+    "ts-pattern": "^4.2.2",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@remix-run/dev": "^1.14.3",
-    "@remix-run/eslint-config": "^1.14.3",
+    "@remix-run/dev": "^1.16.0",
+    "@remix-run/eslint-config": "^1.16.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
-    "@types/eslint": "^8.21.3",
-    "@types/node": "^18.15.9",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.8",
-    "@vitejs/plugin-react": "^3.1.0",
-    "@vitest/coverage-c8": "^0.29.7",
-    "eslint": "^8.27.0",
+    "@types/eslint": "^8.37.0",
+    "@types/node": "^18.16.3",
+    "@types/ramda": "^0.29.1",
+    "@types/react": "^18.2.4",
+    "@types/react-dom": "^18.2.3",
+    "@vitejs/plugin-react": "^4.0.0",
+    "@vitest/coverage-c8": "^0.31.0",
+    "eslint": "^8.39.0",
     "eslint-config-prettier": "^8.8.0",
-    "happy-dom": "^8.9.0",
-    "prettier": "^2.8.7",
-    "prettier-plugin-tailwindcss": "^0.2.5",
-    "typescript": "^5",
-    "vite-tsconfig-paths": "^4.0.7",
-    "vitest": "^0.29.7"
+    "jsdom": "^22.0.0",
+    "msw": "^1.2.1",
+    "prettier": "^2.8.8",
+    "prettier-plugin-tailwindcss": "^0.2.8",
+    "typescript": "^5.0.4",
+    "vite-tsconfig-paths": "^4.2.0",
+    "vitest": "^0.31.0"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
+  },
+  "volta": {
+    "node": "18.16.0"
   }
 }

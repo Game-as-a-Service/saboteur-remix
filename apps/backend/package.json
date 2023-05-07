@@ -71,10 +71,13 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=14.16"
+    "node": ">=18"
   },
   "prettier": {},
   "eslintIgnore": [
     "/node_modules"
-  ]
+  ],
+  "volta": {
+    "node": "18.16.0"
+  }
 }

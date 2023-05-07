@@ -1,15 +1,21 @@
 import type { EventSource } from "~/models/event";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { CheckPositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
+import type { PositionsHasBeenPlacedError } from "./check-positions-has-been-placed";
+import type { GetCurrentPlacementsError } from "./get-current-placements";
+import type { PositionIsNotConnectedErrors } from "./check-positions-is-connected";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import checkPositionsHasBeenPlaced from "./check-positions-has-been-placed";
-import { ResultAsync } from "neverthrow";
+import getCurrentPlacements from "./get-current-placements";
+import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
+import checkIfPositionIsConnected from "./check-positions-is-connected";
+import { ResultAsync, okAsync } from "neverthrow";
 import { always, error } from "~/utils";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
 export type PlacePathCardError =
-  | CheckPositionsHasBeenPlacedError
+  | GetCurrentPlacementsError
+  | PositionsHasBeenPlacedError
+  | PositionIsNotConnectedErrors
   | RepositoryWriteError;
 export interface PlacePathCard {
   (
@@ -25,7 +31,7 @@ const appendEventToEventSource =
   ) =>
   () =>
     ResultAsync.fromPromise(
-      source.append(PathCardHasBeenPlacedEvent(...command.data)),
+      source.append(PathCardHasBeenPlacedEvent(command.data)),
       always(RepositoryWriteError("failed to write event to repository"))
     );
 
@@ -37,8 +43,12 @@ const appendEventToEventSource =
  * *param* command - place path card command
  */
 export const placePathCard: PlacePathCard = (source, command) =>
-  checkPositionsHasBeenPlaced(source, command)
-    //
+  getCurrentPlacements(source)
+    .andThen((board) =>
+      okAsync(command)
+        .andThen(checkIfAnyPositionsHasBeenPlaced(board))
+        .andThen(checkIfPositionIsConnected(board))
+    )
     .andThen(appendEventToEventSource(source, command));
 
 export default placePathCard;
