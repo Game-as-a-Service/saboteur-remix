@@ -1,21 +1,15 @@
 import z from "zod";
-import { ActionCard } from "~/models/card";
-
-export const RockfallCardSchema = z.object({
-  card: z.literal(ActionCard.ROCKFALL),
-  position: z.tuple([z.number(), z.number()]),
-});
-
-export type RockfallCard = z.infer<typeof RockfallCardSchema>;
+import type { Placement } from "~/models/placement";
+import { PlacementSchema } from "~/models/placement";
 
 export const RockfallCommandSchema = z.object({
   type: z.literal("use action card (rockfall)"),
-  data: RockfallCardSchema,
+  data: PlacementSchema,
 });
 
 export type RockfallCommand = Readonly<z.infer<typeof RockfallCommandSchema>>;
 
-export function RockfallCommand(data: RockfallCard): RockfallCommand {
+export function RockfallCommand(data: Placement): RockfallCommand {
   return { type: "use action card (rockfall)", data };
 }
 

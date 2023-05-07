@@ -40,7 +40,18 @@ const NonRemovablePathCard = Object.freeze([
   PathCard.GOAL_GOLD,
 ]);
 
-const isRemovablePathCard = Either.fromPredicate<
+const validateCardAtPosition = (command: RockfallCommand) =>
+  Either.fromPredicate<Placement, TargetCannotBeRemovedError>(
+    (placement) => placement.card === command.data.card,
+    () =>
+      TargetCannotBeRemovedError(
+        `unable to find the ${
+          command.data.card
+        } card at position (${command.data.position.join(", ")}) on the board`
+      )
+  );
+
+const checkPathCardRemovability = Either.fromPredicate<
   Placement,
   TargetCannotBeRemovedError
 >(
@@ -56,17 +67,16 @@ const findPlacementByPosition = (command: RockfallCommand) =>
     flow(prop("position"), Vec.eq(command.data.position))
   );
 
-const checkPathCardHasBeenPlaced =
-  (command: RockfallCommand) => (board: Placement[]) =>
-    pipe(
-      board,
-      findPlacementByPosition(command),
-      Either.fromOption(() =>
-        TargetCannotBeRemovedError("empty placement cannot be removed")
-      ),
-      Either.chain(isRemovablePathCard),
-      Either.matchW(err, always(ok(command)))
-    );
+const checkPathCardHasBeenPlaced = (command: RockfallCommand) =>
+  flow(
+    findPlacementByPosition(command),
+    Either.fromOption(() =>
+      TargetCannotBeRemovedError("empty placement cannot be removed")
+    ),
+    Either.chain(validateCardAtPosition(command)),
+    Either.chain(checkPathCardRemovability),
+    Either.matchW(err, always(ok(command)))
+  );
 
 const appendEventToEventSource =
   (source: EventSource<BoardCardEvent>, command: RockfallCommand) => () =>

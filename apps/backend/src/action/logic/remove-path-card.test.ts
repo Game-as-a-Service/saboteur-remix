@@ -1,10 +1,11 @@
 import type { EventSource } from "~/models/event";
 import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import { ActionCard, PathCard } from "~/models/card";
+import { PathCard } from "~/models/card";
 import { never } from "~/utils";
 import removePathCard, { BoardCardEvent } from "./remove-path-card";
 import { PathCardHasBeenRemovedEvent } from "../event";
 import { RockfallCommand } from "../command";
+import { Placement } from "~/models/placement";
 
 describe("remove path card", () => {
   let source: EventSource<BoardCardEvent>;
@@ -45,7 +46,7 @@ describe("remove path card", () => {
         removePathCard(
           source,
           RockfallCommand({
-            card: ActionCard.ROCKFALL,
+            card: PathCard.START,
             position: [0, 0],
           })
         )
@@ -69,53 +70,66 @@ describe("remove path card", () => {
       );
   });
 
-  test(`
+  test.each<[Placement, Error]>([
+    [
+      {
+        card: PathCard.GOAL_GOLD,
+        position: [8, 0],
+      },
+      Error(`the path card ${PathCard.GOAL_GOLD} cannot be removed`),
+    ],
+    [
+      {
+        card: PathCard.GOAL_COAL_BOTTOM_LEFT,
+        position: [8, -2],
+      },
+      Error(
+        `the path card ${PathCard.GOAL_COAL_BOTTOM_LEFT} cannot be removed`
+      ),
+    ],
+    [
+      {
+        card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
+        position: [8, 2],
+      },
+      Error(
+        `the path card ${PathCard.GOAL_COAL_BOTTOM_RIGHT} cannot be removed`
+      ),
+    ],
+  ])(
+    `
     given:
       a board with:
-        - goal card [Gold] at position (8, 0)
+        - goal card [$0.card] at position ($0.position[0], $0.position[1])
     when:
       remove
-        - goal card [Gold] at position (8, 0)
+        - goal card [$0.card] at position ($0.position[0], $0.position[1])
     then:
       - should return error
-        - the gold card [Gold] cannot be removed.
+        - $1.message
       - event source should not includes
         - path card has been removed
-  `, () => {
-    source
-      .append(
-        PathCardHasBeenPlacedEvent({
-          card: PathCard.GOAL_GOLD,
-          position: [8, 0],
+  `,
+    (placement, expectedError) => {
+      source
+        .append(PathCardHasBeenPlacedEvent(placement))
+        .then(() => removePathCard(source, RockfallCommand(placement)))
+        .then((result) => {
+          result.match(never, (error) =>
+            expect(error).toStrictEqual(expectedError)
+          );
         })
-      )
-      .then(() =>
-        removePathCard(
-          source,
-          RockfallCommand({
-            card: ActionCard.ROCKFALL,
-            position: [8, 0],
-          })
-        )
-      )
-      .then((result) => {
-        result.match(never, (error) =>
-          expect(error).toStrictEqual(
-            Error(`the path card ${PathCard.GOAL_GOLD} cannot be removed`)
-          )
+        .then(() =>
+          source
+            .read()
+            .then((events) =>
+              expect(events).toStrictEqual([
+                PathCardHasBeenPlacedEvent(placement),
+              ])
+            )
         );
-      })
-      .then(() =>
-        source.read().then((events) =>
-          expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
-              card: PathCard.GOAL_GOLD,
-              position: [8, 0],
-            }),
-          ])
-        )
-      );
-  });
+    }
+  );
 
   test(`
     given:
@@ -141,7 +155,7 @@ describe("remove path card", () => {
         removePathCard(
           source,
           RockfallCommand({
-            card: ActionCard.ROCKFALL,
+            card: PathCard.CONNECTED_CROSS,
             position: [1, 0],
           })
         )
@@ -151,7 +165,7 @@ describe("remove path card", () => {
           (result) =>
             expect(result).toStrictEqual(
               PathCardHasBeenRemovedEvent({
-                card: ActionCard.ROCKFALL,
+                card: PathCard.CONNECTED_CROSS,
                 position: [1, 0],
               })
             ),
@@ -166,7 +180,7 @@ describe("remove path card", () => {
               position: [1, 0],
             }),
             PathCardHasBeenRemovedEvent({
-              card: ActionCard.ROCKFALL,
+              card: PathCard.CONNECTED_CROSS,
               position: [1, 0],
             }),
           ])
@@ -181,7 +195,7 @@ describe("remove path card", () => {
       remove
         - empty placement at position (1, 0)
     then:
-      - should return event
+      - should return error
         - empty placement cannot be removed.
       - event source should not includes
         - path card has been removed
@@ -191,7 +205,7 @@ describe("remove path card", () => {
         removePathCard(
           source,
           RockfallCommand({
-            card: ActionCard.ROCKFALL,
+            card: PathCard.CONNECTED_CROSS,
             position: [1, 0],
           })
         )
@@ -205,6 +219,56 @@ describe("remove path card", () => {
       })
       .then(() =>
         source.read().then((events) => expect(events).toStrictEqual([]))
+      );
+  });
+
+  test(`
+    given:
+      a board with:
+        - path card [connected cross] at position (1, 0)
+    when:
+      remove
+        - path card [deadend cross] at position (1, 0)
+    then:
+      - should return error
+        - unable to find the path card [deadend cross] at position (1, 0) on the board
+      - event source should not includes
+        - path card has been removed
+  `, () => {
+    source
+      .append(
+        PathCardHasBeenPlacedEvent({
+          card: PathCard.CONNECTED_CROSS,
+          position: [1, 0],
+        })
+      )
+      .then(() =>
+        removePathCard(
+          source,
+          RockfallCommand({
+            card: PathCard.DEADEND_CROSS,
+            position: [1, 0],
+          })
+        )
+      )
+      .then((result) => {
+        result.match(never, (error) =>
+          expect(error).toStrictEqual(
+            Error(
+              `unable to find the ${PathCard.DEADEND_CROSS} card at position (1, 0) on the board`
+            )
+          )
+        );
+      })
+      .then(() =>
+        source.read().then((events) =>
+          expect(events).toStrictEqual([
+            PathCardHasBeenPlacedEvent({
+              card: PathCard.CONNECTED_CROSS,
+              position: [1, 0],
+            }),
+          ])
+        )
       );
   });
 });
