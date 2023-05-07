@@ -1,9 +1,9 @@
 import z from "zod";
-import { Placement, PlacementSchema } from "~/models/placement";
+import { RockfallCard, RockfallCardSchema } from "../command";
 
 export const PathCardHasBeenRemovedEventSchema = z.object({
   type: z.literal("path card has been removed"),
-  data: PlacementSchema,
+  data: RockfallCardSchema,
 });
 
 export type PathCardHasBeenRemovedEvent = Readonly<
@@ -17,7 +17,7 @@ export function isPathCardHasBeenRemovedEvent(
 }
 
 export function PathCardHasBeenRemovedEvent(
-  data: Placement
+  data: RockfallCard
 ): PathCardHasBeenRemovedEvent {
   return { type: "path card has been removed", data };
 }

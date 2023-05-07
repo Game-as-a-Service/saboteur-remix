@@ -1,18 +1,31 @@
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:lts-alpine as build
+FROM node:lts-alpine as builder
+RUN apk add --no-cache libc6-compat
+RUN apk update
+
+# Set working directory
+WORKDIR /app
+RUN yarn global add turbo
+COPY . .
+RUN turbo prune --scope=frontend --docker
+
+# Add lockfile and package.json's of isolated subworkspace
+FROM node:lts-alpine AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
 WORKDIR /app
 
-COPY . .
-
+# First install the dependencies (as they change less often)
+COPY .gitignore .gitignore
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/yarn.lock ./yarn.lock
 RUN yarn install
-RUN yarn build
 
-ENV NODE_ENV=production
-RUN yarn install --production && yarn cache clean --force
+# Build the project
+COPY --from=builder /app/out/full/ .
+RUN yarn turbo run build --filter=frontend...
 
 ###################
 # PRODUCTION
@@ -22,9 +35,9 @@ RUN addgroup --system --gid 1001 remix
 RUN adduser --system --uid 1001 remix
 USER remix
 
-COPY --from=build /app/package.json ./package.json
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/build ./build
-COPY --from=build /app/public ./public
+COPY --from=installer /app/apps/frontend/package.json ./package.json
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/frontend/build ./build
+COPY --from=installer /app/apps/frontend/public ./public
 
 CMD ["npm", "run", "start"]

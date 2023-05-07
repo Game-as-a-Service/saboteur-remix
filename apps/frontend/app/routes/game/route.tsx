@@ -1,8 +1,10 @@
 import { json } from "@remix-run/node";
 import env from "~/env.server";
 import { useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import createSocket from "~/services/socket.client";
+import { useEffect } from "react";
+import { Provider } from "react-redux";
+import store from "./store";
+import { connectClient } from "@packages/socket";
 
 export function loader() {
   return json({
@@ -10,29 +12,26 @@ export function loader() {
   });
 }
 
-type Socket = ReturnType<typeof createSocket>;
-function useSocket(url: string) {
-  const [socket, setSocket] = useState<Socket>();
-
-  useEffect(() => {
-    const socket = createSocket(url);
-
-    socket.open();
-    socket.once("connect", () => setSocket(socket));
-    return () => {
-      socket.disconnect();
-    };
-  }, [url, setSocket]);
-
-  return socket;
+function App() {
+  return <></>;
 }
 
 export default function Route() {
   const data = useLoaderData<typeof loader>();
 
-  const socket = useSocket(data.SOCKET_URL);
+  useEffect(() => {
+    const disconnect = connectClient({
+      url: data.SOCKET_URL,
+      onPathCardHasBeenPlaced: store.dispatch,
+      onBoardUpdated: store.dispatch,
+    });
 
-  console.log(socket);
+    return disconnect;
+  }, [data.SOCKET_URL]);
 
-  return <></>;
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
 }
