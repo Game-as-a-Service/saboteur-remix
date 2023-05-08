@@ -34,7 +34,7 @@ describe("remove path card", () => {
         - the start card cannot be removed.
       - event source should not includes
         - path card has been removed
-  `, () => {
+  `, async () =>
     source
       .append(
         PathCardHasBeenPlacedEvent({
@@ -67,50 +67,51 @@ describe("remove path card", () => {
             }),
           ])
         )
-      );
-  });
+      ));
 
-  test.each<[Placement, Error]>([
-    [
-      {
+  test.each<{ placement: Placement; expectedError: Error }>([
+    {
+      placement: {
         card: PathCard.GOAL_GOLD,
         position: [8, 0],
       },
-      Error(`the path card ${PathCard.GOAL_GOLD} cannot be removed`),
-    ],
-    [
-      {
+      expectedError: Error(
+        `the path card ${PathCard.GOAL_GOLD} cannot be removed`
+      ),
+    },
+    {
+      placement: {
         card: PathCard.GOAL_COAL_BOTTOM_LEFT,
         position: [8, -2],
       },
-      Error(
+      expectedError: Error(
         `the path card ${PathCard.GOAL_COAL_BOTTOM_LEFT} cannot be removed`
       ),
-    ],
-    [
-      {
+    },
+    {
+      placement: {
         card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
         position: [8, 2],
       },
-      Error(
+      expectedError: Error(
         `the path card ${PathCard.GOAL_COAL_BOTTOM_RIGHT} cannot be removed`
       ),
-    ],
+    },
   ])(
     `
     given:
       a board with:
-        - goal card [$0.card] at position ($0.position[0], $0.position[1])
+        - [$placement.card] at position $placement.position
     when:
       remove
-        - goal card [$0.card] at position ($0.position[0], $0.position[1])
+        - [$placement.card] at position $placement.position
     then:
       - should return error
-        - $1.message
+        - $expectedError.message
       - event source should not includes
         - path card has been removed
   `,
-    (placement, expectedError) => {
+    async ({ placement, expectedError }) =>
       source
         .append(PathCardHasBeenPlacedEvent(placement))
         .then(() => removePathCard(source, RockfallCommand(placement)))
@@ -127,8 +128,7 @@ describe("remove path card", () => {
                 PathCardHasBeenPlacedEvent(placement),
               ])
             )
-        );
-    }
+        )
   );
 
   test(`
@@ -143,7 +143,7 @@ describe("remove path card", () => {
         - path card has been removed event.
       - event source should includes
         - path card has been removed
-  `, () => {
+  `, async () =>
     source
       .append(
         PathCardHasBeenPlacedEvent({
@@ -185,8 +185,7 @@ describe("remove path card", () => {
             }),
           ])
         )
-      );
-  });
+      ));
 
   test(`
     given:
@@ -199,7 +198,7 @@ describe("remove path card", () => {
         - empty placement cannot be removed.
       - event source should not includes
         - path card has been removed
-  `, () => {
+  `, async () =>
     Promise.resolve()
       .then(() =>
         removePathCard(
@@ -219,8 +218,7 @@ describe("remove path card", () => {
       })
       .then(() =>
         source.read().then((events) => expect(events).toStrictEqual([]))
-      );
-  });
+      ));
 
   test(`
     given:
@@ -234,7 +232,7 @@ describe("remove path card", () => {
         - unable to find the path card [deadend cross] at position (1, 0) on the board
       - event source should not includes
         - path card has been removed
-  `, () => {
+  `, async () =>
     source
       .append(
         PathCardHasBeenPlacedEvent({
@@ -269,6 +267,5 @@ describe("remove path card", () => {
             }),
           ])
         )
-      );
-  });
+      ));
 });
