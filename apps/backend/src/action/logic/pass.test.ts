@@ -17,11 +17,6 @@ describe("pass", () => {
     source = { append, read, on: jest.fn(), off: jest.fn() };
   });
 
-  /**
-   * 由於目前抽牌事件是否要綁在這個流程還不確定
-   * 因此到時候可能移除
-   */
-
   test.todo(`
       given: 
         a player with
