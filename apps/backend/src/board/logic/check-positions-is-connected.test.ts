@@ -40,10 +40,10 @@ describe("check positions is connected", () => {
   ])(
     `
       [getNeighbors]
-      given:
-        position
+      when:
+        input position %j
       expect:
-        should return positions of its top, right, bottom, left neighbors
+        should return positions %j
     `,
     (position: Position, expected: Position[]) => {
       expect(getNeighbors(position)).toIncludeSameMembers(expected);
@@ -64,9 +64,14 @@ describe("check positions is connected", () => {
   ])(
     `
       [isConnectNeighbor]
-      preset: board
       given:
-        a placement %j
+        - a board with:
+          - start card at position (0, 0)
+          - path card connected bottom right at position (0, 1)
+          - path card connected top left right at position (1, 1)
+          - path card deadend top bottom right at position (-1, 0)
+      when:
+        add new placement %j
       expect:
         is placement connected to neighbors on current board: %j
     `,
