@@ -54,7 +54,7 @@ function gt_2(v1: number, v2: number) {
   return gt_1(v1)(v2);
 }
 function gt_1(v1: number): (v2: number) => boolean {
-  return (v2) => v2 < v1;
+  return (v2) => v2 > v1;
 }
 export function gt(v1: number, v2: number): boolean;
 export function gt(v1: number): (v2: number) => boolean;

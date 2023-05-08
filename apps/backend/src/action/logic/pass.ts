@@ -2,7 +2,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
 import { TurnHasBeenPassedEvent } from "~/action/event";
-import { always, error, eq } from "~/utils";
+import { always, error, eq, gt } from "~/utils";
 import getCurrentPlayerHand, {
   GetCurrentPlayerHandError,
 } from "./get-current-player-hand";
@@ -62,6 +62,18 @@ export const pass: Pass = (
           [P.nullish, P._],
           ([, length]) => pipe(length, eq(0)),
           always(appendEventToEventSource(source, command))
+          //
+        )
+        .with(
+          [P.nullish, P._],
+          ([, length]) => pipe(length, gt(0)),
+          always(
+            errAsync(
+              PassFailedError(
+                "Player has remaining card, so nullish discard card cannot be sent"
+              )
+            )
+          )
           //
         )
         .otherwise(
