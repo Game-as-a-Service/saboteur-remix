@@ -15,13 +15,16 @@ export interface CheckDeckHasCard {
   ) => Result<boolean, CheckDeckHasCardError>;
 }
 
+const deckIncludeCard = (card: PathCard) => (deck: PathCard[]) =>
+  deck.includes(card);
+
 export const checkDeckHasCard: CheckDeckHasCard =
   (deck: PathCard[]) => (card: PathCard | undefined | null) =>
     pipe(
       O.fromNullable(card),
       O.map((card) =>
         match(deck)
-          .with([card], always(true))
+          .when(deckIncludeCard(card), always(true))
           //
           .otherwise(always(false))
       ),
