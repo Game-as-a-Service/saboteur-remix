@@ -67,7 +67,7 @@ export const pass: Pass = (
         .otherwise(
           always(
             pipe(
-              command,
+              command.data.card,
               checkDeckHasCard(deck)
               //
             ).match<ResultAsync<boolean, CheckDeckHasCardError>>(

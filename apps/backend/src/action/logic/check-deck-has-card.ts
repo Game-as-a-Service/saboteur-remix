@@ -12,14 +12,14 @@ export type CheckDeckHasCardError = CardIsNullishError;
 
 export interface CheckDeckHasCard {
   (deck: PathCard[]): (
-    command: PassCommand
+    card: PathCard | undefined | null
   ) => Result<boolean, CheckDeckHasCardError>;
 }
 
 export const checkDeckHasCard: CheckDeckHasCard =
-  (deck: PathCard[]) => (command: PassCommand) =>
+  (deck: PathCard[]) => (card: PathCard | undefined | null) =>
     pipe(
-      O.fromNullable(command.data.card),
+      O.fromNullable(card),
       O.map((card) =>
         match(deck)
           .with([card], always(true))
