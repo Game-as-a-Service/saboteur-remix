@@ -60,14 +60,10 @@ function createEventSource<E extends Event>(
           )
         ).then(tap(() => client.quit()))
       ),
-    read: (option) =>
+    read: () =>
       client().then((client) =>
         client
-          .xRange(
-            key,
-            option?.fromRevision === "end" ? "+" : "-",
-            option?.fromRevision === "end" ? "-" : "+"
-          )
+          .xRange(key, "-", "+")
           .then((data) =>
             Promise.all(
               data
