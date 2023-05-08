@@ -1,7 +1,6 @@
 import { Result, err, ok } from "neverthrow";
 import { PathCard } from "~/models/card";
 import { always, error } from "~/utils";
-import { PassCommand } from "../command";
 import { match } from "ts-pattern";
 import * as O from "fp-ts/Option";
 import { pipe } from "fp-ts/function";

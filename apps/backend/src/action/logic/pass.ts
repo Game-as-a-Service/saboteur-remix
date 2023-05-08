@@ -77,8 +77,8 @@ export const pass: Pass = (
           )
         )
     )
-    .andThen((t) =>
-      match(t)
+    .andThen((hasCard) =>
+      match(hasCard)
         .with(true, always(appendEventToEventSource(source, command)))
         .with(
           false,
