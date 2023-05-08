@@ -49,3 +49,29 @@ export function tap<T>(fn: UnaryFn<T, void>) {
     return value;
   };
 }
+
+function gt_2(v1: number, v2: number) {
+  return gt_1(v1)(v2);
+}
+function gt_1(v1: number): (v2: number) => boolean {
+  return (v2) => v2 < v1;
+}
+export function gt(v1: number, v2: number): boolean;
+export function gt(v1: number): (v2: number) => boolean;
+export function gt(v1: number, v2?: number) {
+  if (!v2) return gt_1(v1);
+  return gt_2(v1, v2);
+}
+
+function eq_2(v1: number, v2: number) {
+  return eq_1(v1)(v2);
+}
+function eq_1(v1: number): (v2: number) => boolean {
+  return (v2) => v2 === v1;
+}
+export function eq(v1: number, v2: number): boolean;
+export function eq(v1: number): (v2: number) => boolean;
+export function eq(v1: number, v2?: number) {
+  if (!v2) return eq_1(v1);
+  return eq_2(v1, v2);
+}

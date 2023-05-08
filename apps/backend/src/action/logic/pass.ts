@@ -1,20 +1,34 @@
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
 import { TurnHasBeenPassedEvent } from "~/action/event";
-import { always, error } from "~/utils";
+import { always, error, eq } from "~/utils";
+import getCurrentPlayerHand, {
+  GetCurrentPlayerHandError,
+} from "./get-current-player-hand";
+import { Event as ActionEvent } from "~/action/event";
+import { P, match } from "ts-pattern";
+import checkDeckHasCard, { CheckDeckHasCardError } from "./check-deck-has-card";
+import { pipe, flow } from "fp-ts/function";
 
+const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
-export type PassError = RepositoryWriteError;
+
+const PassFailedError = error("PassFailedError");
+export type PassFailedError = ReturnType<typeof PassFailedError>;
+
+export type PassError =
+  | RepositoryWriteError
+  | PassFailedError
+  | CheckDeckHasCardError
+  | GetCurrentPlayerHandError;
 
 export interface Pass {
   (
     source: EventSource<TurnHasBeenPassedEvent>,
     command: PassCommand
-  ): ResultAsync<TurnHasBeenPassedEvent[], Error /* PassError */>;
+  ): ResultAsync<TurnHasBeenPassedEvent[], PassError>;
 }
-
-const RepositoryWriteError = error("RepositoryWriteError");
 
 const appendEventToEventSource = (
   source: EventSource<TurnHasBeenPassedEvent>,
@@ -36,20 +50,41 @@ const appendEventToEventSource = (
  * *param* source - event source
  * *param* command - pass command
  */
-export const pass: Pass = (source, command) =>
-  // @todo should validate the user hands
-  /**
-   *
-   * 1. check player have cards left
-   *  if the player has no cards left and the discard card eq null
-   *    - can Pass
-   *
-   * 2. check player have the card
-   *  get player hands if hands can find the discard card
-   *    - can Pass
-   *  else not find
-   *    - Error
-   **/
-  errAsync(new Error("not implemented"));
+export const pass: Pass = (
+  source: EventSource<TurnHasBeenPassedEvent>,
+  command: PassCommand
+) =>
+  getCurrentPlayerHand(source as EventSource<ActionEvent>)
+    .andThen((deck) =>
+      match([command.data.card, deck.length])
+        // no hands and no discard card
+        .with(
+          [P.nullish, P._],
+          ([, length]) => pipe(length, eq(0)),
+          always(appendEventToEventSource(source, command))
+          //
+        )
+        .otherwise(
+          always(
+            pipe(
+              command,
+              checkDeckHasCard(deck)
+              //
+            ).match<ResultAsync<boolean, CheckDeckHasCardError>>(
+              okAsync,
+              errAsync
+            )
+          )
+        )
+    )
+    .andThen((t) =>
+      match(t)
+        .with(true, always(appendEventToEventSource(source, command)))
+        .with(
+          false,
+          always(errAsync(PassFailedError("Player does not have this card")))
+        )
+        .otherwise(flow(okAsync))
+    );
 
 export default pass;
