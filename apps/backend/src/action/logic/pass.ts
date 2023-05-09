@@ -63,6 +63,7 @@ export const pass: Pass = (
           always(appendEventToEventSource(source, command))
           //
         )
+        // has hands and no discard card
         .with(
           [P.nullish, P._],
           always(
@@ -74,7 +75,9 @@ export const pass: Pass = (
           )
           //
         )
-        .otherwise(
+        // has discard card
+        .with(
+          [P.not(P.nullish), P._],
           always(
             pipe(
               command.data.card,
@@ -86,14 +89,18 @@ export const pass: Pass = (
             )
           )
         )
+        .exhaustive()
     )
-    .andThen((hasCard) =>
-      match(hasCard)
+    .andThen((hasCardOrEvent) =>
+      match(hasCardOrEvent)
+        // has card
         .with(true, always(appendEventToEventSource(source, command)))
+        // not has card
         .with(
           false,
           always(errAsync(PassFailedError("Player does not have this card")))
         )
+        // event
         .otherwise(flow(okAsync))
     );
 
