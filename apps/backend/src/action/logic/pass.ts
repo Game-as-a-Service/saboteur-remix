@@ -2,7 +2,7 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
 import { TurnHasBeenPassedEvent } from "~/action/event";
-import { always, error, eq, gt } from "~/utils";
+import { always, error, eq, gt, prop } from "~/utils";
 import getCurrentPlayerHand, {
   GetCurrentPlayerHandError,
 } from "./get-current-player-hand";
@@ -56,17 +56,15 @@ export const pass: Pass = (
 ) =>
   getCurrentPlayerHand(source as EventSource<ActionEvent>)
     .andThen((deck) =>
-      match([command.data.card, deck.length])
+      match([command.data.card, deck])
         // no hands and no discard card
         .with(
-          [P.nullish, P._],
-          ([, length]) => pipe(length, eq(0)),
+          [P.nullish, []],
           always(appendEventToEventSource(source, command))
           //
         )
         .with(
           [P.nullish, P._],
-          ([, length]) => pipe(length, gt(0)),
           always(
             errAsync(
               PassFailedError(
