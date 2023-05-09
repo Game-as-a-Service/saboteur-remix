@@ -101,7 +101,7 @@ export const pass: Pass = (
           always(errAsync(PassFailedError("Player does not have this card")))
         )
         // event
-        .otherwise(flow(okAsync))
+        .otherwise(okAsync)
     );
 
 export default pass;
