@@ -2,14 +2,14 @@ import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
 import { TurnHasBeenPassedEvent } from "~/action/event";
-import { always, error, eq, gt, prop } from "~/utils";
+import { always, error } from "~/utils";
 import getCurrentPlayerHand, {
   GetCurrentPlayerHandError,
 } from "./get-current-player-hand";
 import { Event as ActionEvent } from "~/action/event";
 import { P, match } from "ts-pattern";
 import checkDeckHasCard, { CheckDeckHasCardError } from "./check-deck-has-card";
-import { pipe, flow } from "fp-ts/function";
+import { pipe } from "fp-ts/function";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
