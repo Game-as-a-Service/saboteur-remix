@@ -4,7 +4,7 @@ function diff_2(v1: Vec2, v2: Vec2): Vec2 {
   return diff_1(v1)(v2);
 }
 function diff_1(v1: Vec2): (v2: Vec2) => Vec2 {
-  return (v2) => [v1[0] + v2[0], v1[1] + v2[1]];
+  return (v2) => [v1[0] - v2[0], v1[1] - v2[1]];
 }
 export function diff(v1: Vec2): (v2: Vec2) => Vec2;
 export function diff(v1: Vec2, v2: Vec2): Vec2;

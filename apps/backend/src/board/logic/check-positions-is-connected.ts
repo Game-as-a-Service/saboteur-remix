@@ -90,13 +90,13 @@ const ifNotConnectNeighbor = Either.fromPredicate<Placement[], AggregateError>(
     )
 );
 
-const getNeighbors = (position: Position) =>
+export const getNeighbors = (position: Position) =>
   available({
     position: position,
     card: PathCard.CONNECTED_CROSS,
   });
 
-const isConnectNeighbor = (board: Placement[]) => (y: Placement) => {
+export const isConnectNeighbor = (board: Placement[]) => (y: Placement) => {
   const neighbors = Vec.Set(getNeighbors(y.position));
   const yPaths = Vec.Set(directions2Vec(PathCardRule[y.card].directions));
   return (
@@ -109,22 +109,22 @@ const isConnectNeighbor = (board: Placement[]) => (y: Placement) => {
         const xPaths = Vec.Set(directions2Vec(PathCardRule[x.card].directions));
         if (Vec.eq(direction, Vec.radianToVec(Direction.LEFT))) {
           return (
-            xPaths.has(Vec.radianToVec(Direction.RIGHT)) &&
+            xPaths.has(Vec.radianToVec(Direction.RIGHT)) ===
             yPaths.has(Vec.radianToVec(Direction.LEFT))
           );
         } else if (Vec.eq(direction, Vec.radianToVec(Direction.TOP))) {
           return (
-            xPaths.has(Vec.radianToVec(Direction.BOTTOM)) &&
+            xPaths.has(Vec.radianToVec(Direction.BOTTOM)) ===
             yPaths.has(Vec.radianToVec(Direction.TOP))
           );
         } else if (Vec.eq(direction, Vec.radianToVec(Direction.RIGHT))) {
           return (
-            xPaths.has(Vec.radianToVec(Direction.LEFT)) &&
+            xPaths.has(Vec.radianToVec(Direction.LEFT)) ===
             yPaths.has(Vec.radianToVec(Direction.RIGHT))
           );
         } else if (Vec.eq(direction, Vec.radianToVec(Direction.BOTTOM))) {
           return (
-            xPaths.has(Vec.radianToVec(Direction.TOP)) &&
+            xPaths.has(Vec.radianToVec(Direction.TOP)) ===
             yPaths.has(Vec.radianToVec(Direction.BOTTOM))
           );
         }
