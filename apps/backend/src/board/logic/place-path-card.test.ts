@@ -365,7 +365,6 @@ describe("place path card", () => {
           - a path card [connected top left right] at position (1, 0)
           - path card [connected left bottom] at position (2, 0)
   `, async () =>
-
     placePathCard(
       source,
       PlacePathCardCommand({
