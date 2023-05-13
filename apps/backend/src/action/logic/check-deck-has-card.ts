@@ -2,7 +2,8 @@ import { Result, err, ok } from "neverthrow";
 import { PathCard } from "~/models/card";
 import { always, error } from "~/utils";
 import * as O from "fp-ts/Option";
-import { pipe, flow } from "fp-ts/function";
+import * as Array from "fp-ts/Array";
+import { pipe } from "fp-ts/function";
 
 const CardIsNullishError = error("CardIsNullishError");
 export type CardIsNullishError = ReturnType<typeof CardIsNullishError>;
@@ -15,17 +16,19 @@ export interface CheckDeckHasCard {
 }
 
 const deckIncludeCard = (deck: PathCard[]) => (card: PathCard) =>
-  deck.includes(card);
+  pipe(
+    deck,
+    Array.some((c) => c === card)
+    //
+  );
 
 export const checkDeckHasCard: CheckDeckHasCard =
   (deck: PathCard[]) => (card: PathCard | undefined | null) =>
     pipe(
       O.fromNullable(card),
       O.map(
-        flow(
-          deckIncludeCard(deck)
-          //
-        )
+        deckIncludeCard(deck)
+        //
       ),
       O.matchW(
         always(
