@@ -8,23 +8,15 @@ import { always, error } from "~/utils";
 import { match, P } from "ts-pattern";
 
 const EventSourceReadError = error("EventSourceReadError");
-export type RepositoryReadError = ReturnType<typeof EventSourceReadError>;
-export type GetCurrentPlacementsError = RepositoryReadError;
-export interface GetCurrentPlacements {
-  (repository: EventSource<BoardEvent>): ResultAsync<
-    Placement[],
+type EventSourceReadError = ReturnType<typeof EventSourceReadError>;
+export type GetCurrentPlacementsError = EventSourceReadError;
+export type CurrentPlacements = Placement[];
+interface GetCurrentPlacements {
+  (source: EventSource<BoardEvent>): ResultAsync<
+    CurrentPlacements,
     GetCurrentPlacementsError
   >;
 }
-
-const reducer = (placements: Placement[], event: Event) =>
-  match(event)
-    .with(
-      P.when(isPathCardHasBeenPlacedEvent),
-      (event) => placements.concat(event.data)
-      //
-    )
-    .otherwise(always(placements));
 
 const readAllEventsFromEventSource = (source: EventSource<BoardEvent>) =>
   ResultAsync.fromPromise(
@@ -32,12 +24,18 @@ const readAllEventsFromEventSource = (source: EventSource<BoardEvent>) =>
     always(EventSourceReadError("failed to read events from source"))
   );
 
+const reducer = (placements: Placement[], event: Event) =>
+  match(event)
+    .with(P.when(isPathCardHasBeenPlacedEvent), (event) =>
+      placements.concat(event.data)
+    )
+    .otherwise(always(placements));
+
 const aggregateAllEventsToGetCurrentPlacements = Array.reduce([], reducer);
 
 /**
  * *description*
  * get current placements in the board
- *
  * *param* source - event source
  */
 export const getCurrentPlacements: GetCurrentPlacements = (source) =>

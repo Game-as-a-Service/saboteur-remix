@@ -1,13 +1,10 @@
-import type { EventSource } from "~/models/event";
 import type { Placement } from "~/models/placement";
-import { PathCard, GoalCards } from "~/models/card";
 import type { PlacePathCardCommand } from "~/board/command";
-import type { PathCardHasBeenPlacedEvent } from "~/board/event";
-import { ResultAsync, okAsync, err, ok } from "neverthrow";
-import { prop, error, always } from "~/utils";
-import { pipe } from "fp-ts/lib/function";
+import { PathCard, GoalCards } from "~/models/card";
+import { err, ok, Result } from "neverthrow";
+import { prop, error, identity } from "~/utils";
+import { flow, pipe } from "fp-ts/lib/function";
 import * as Vec from "~/models/vec";
-import * as Array from "fp-ts/Array";
 import * as Either from "fp-ts/Either";
 import getAvailablePositions, {
   PathCardRule,
@@ -16,79 +13,31 @@ import getAvailablePositions, {
   directions2Vec,
 } from "./get-available-positions";
 import { Direction } from "~/models/direction";
+import { P, match } from "ts-pattern";
 
-const PositionIsNotConnectStartError = error("PositionIsNotConnectSourceError");
-type PositionIsNotConnectStartError = ReturnType<
-  typeof PositionIsNotConnectStartError
+const PlacementCannotConnectFromStartError = error(
+  "PlacementCannotConnectFromStartError"
+);
+type PlacementCannotConnectFromStartError = ReturnType<
+  typeof PlacementCannotConnectFromStartError
 >;
 
-const positionIsNotConnectNeighborError = error(
-  "PositionIsNotConnectNeighborError"
+const PlacementCannotFitNeighborsError = error(
+  "PlacementCannotFitNeighborsError"
 );
-type PositionIsNotConnectNeighborError = ReturnType<
-  typeof positionIsNotConnectNeighborError
+type PlacementCannotFitNeighborsError = ReturnType<
+  typeof PlacementCannotFitNeighborsError
 >;
 
-export type CheckPositionsIsNotConnectedError =
-  | PositionIsNotConnectStartError
-  | PositionIsNotConnectNeighborError;
-export interface PositionIsNotConnectedErrors extends AggregateError {
-  errors: CheckPositionsIsNotConnectedError[];
-}
+export type PlacementCannotConnectedError =
+  | PlacementCannotConnectFromStartError
+  | PlacementCannotFitNeighborsError;
 
-export interface CheckPositionsIsAvailable {
-  (
-    repository: EventSource<PathCardHasBeenPlacedEvent>,
-    command: PlacePathCardCommand
-  ): ResultAsync<PlacePathCardCommand, PositionIsNotConnectStartError>;
-}
-
-const ExcludeAvailCheck = Object.freeze([
-  PathCard.START,
-  PathCard.GOAL_GOLD,
-  PathCard.GOAL_COAL_BOTTOM_LEFT,
-  PathCard.GOAL_COAL_BOTTOM_RIGHT,
-]);
-
-/**
- * return placement that is not valid
- * @param board - placements
- */
-const filterPlacementsByAvailablePosition = (board: Placement[]) => {
-  const positions = Vec.Set(getAvailablePositions(board));
-  const isNotConnectStart = (x: Placement) => {
-    return !pipe(x, prop("position"), positions.has);
-  };
-  return Array.filter<Placement>((x) => {
-    return ExcludeAvailCheck.includes(pipe(x, prop("card")))
-      ? false
-      : isNotConnectStart(x);
-  });
-};
-
-const ifNotConnectStart = Either.fromPredicate<Placement[], AggregateError>(
-  Array.isEmpty,
-  (placements) =>
-    AggregateError(
-      placements.map((placement) =>
-        PositionIsNotConnectStartError(
-          `the path card ${placement.card} cannot be placed at position (${placement.position})`
-        )
-      )
-    )
-);
-
-const ifNotConnectNeighbor = Either.fromPredicate<Placement[], AggregateError>(
-  Array.isEmpty,
-  (placements) =>
-    AggregateError(
-      placements.map((placement) =>
-        positionIsNotConnectNeighborError(
-          `the path card ${placement.card} cannot be placed at position (${placement.position})`
-        )
-      )
-    )
-);
+export type CheckPositionIsConnected = (
+  board: Placement[]
+) => (
+  command: PlacePathCardCommand
+) => Result<PlacePathCardCommand, PlacementCannotConnectedError>;
 
 const getNeighbors = (position: Position) =>
   available({
@@ -133,53 +82,83 @@ const isConnectNeighbor = (board: Placement[]) => (y: Placement) => {
   );
 };
 
-/**
- * return placement that is connected to all neighbors
- * @param board - placements
- */
-const checkPlacementsByConnectNeighbor =
-  (board: Placement[]) => (command: PlacePathCardCommand) =>
-    pipe(
-      [command.data],
-      Array.filter<Placement>(
-        (placement) => !isConnectNeighbor(board)(placement)
-      ),
-      ifNotConnectNeighbor,
-      Either.matchW(
-        err,
-        always(ok(command))
-        //
-      )
-    );
+const checkIfPlacementCannotFitNeighbors = (board: Placement[]) =>
+  Either.fromPredicate<PlacePathCardCommand, PlacementCannotFitNeighborsError>(
+    flow(
+      prop("data"),
+      isConnectNeighbor(board)
+      //
+    ),
+    flow(
+      prop("data"),
+      (placement) =>
+        PlacementCannotFitNeighborsError(
+          `the path card ${placement.card} cannot be placed at position (${placement.position})`
+        )
+      //
+    )
+  );
+
+const checkIfPlacementCannotConnectFromStart = (board: Placement[]) =>
+  Either.fromPredicate<
+    PlacePathCardCommand,
+    PlacementCannotConnectFromStartError
+  >(
+    flow(
+      prop("data"),
+      prop("position"),
+      Vec.Set(getAvailablePositions(board)).has
+    ),
+    flow(
+      prop("data"),
+      (placement) =>
+        PlacementCannotConnectFromStartError(
+          `the path card ${placement.card} cannot be placed at position (${placement.position})`
+        )
+      //
+    )
+  );
+
+const checkIfCardNeedToCheck = Either.fromPredicate<
+  PlacePathCardCommand,
+  PlacePathCardCommand
+>(
+  flow(
+    prop("data"),
+    prop("card"),
+    (card) =>
+      ![
+        PathCard.START,
+        PathCard.GOAL_GOLD,
+        PathCard.GOAL_COAL_BOTTOM_LEFT,
+        PathCard.GOAL_COAL_BOTTOM_RIGHT,
+      ].includes(card)
+  ),
+  identity
+);
 
 /**
- * return placement that is connected to Start Card
- * @param board - placements
- */
-const checkPlacementsByConnectStart =
-  (board: Placement[]) => (command: PlacePathCardCommand) =>
-    pipe(
-      [command.data],
-      filterPlacementsByAvailablePosition(board),
-      ifNotConnectStart,
-      Either.matchW(
-        err,
-        always(ok(command))
-        //
-      )
-    );
-
-/**
- * *description*
+ * @description
  * check if place path card command placements is well connected to start path cards and its neighbors
  *
- * *param* source - event source
- * *param* command - place path card command
+ * @param source - event source
+ * @param command - place path card command
  */
-const checkIfPositionIsConnected =
-  (board: Placement[]) => (command: PlacePathCardCommand) =>
-    okAsync(command)
-      .andThen(checkPlacementsByConnectStart(board))
-      .andThen(checkPlacementsByConnectNeighbor(board));
+const checkPositionIsConnected: CheckPositionIsConnected =
+  (board) => (command) =>
+    pipe(
+      Either.of(command),
+      Either.chainW(checkIfCardNeedToCheck),
+      Either.chainW(checkIfPlacementCannotConnectFromStart(board)),
+      Either.chainW(checkIfPlacementCannotFitNeighbors(board)),
+      Either.matchW(
+        (data) =>
+          match(data)
+            //
+            .with(P.instanceOf(Error), err)
+            .otherwise(ok),
+        ok
+      )
+    );
 
-export default checkIfPositionIsConnected;
+export default checkPositionIsConnected;

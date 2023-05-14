@@ -1,9 +1,10 @@
 import z from "zod";
 import { PathCard } from "./card";
+import { Vec2Schema } from "./vec2";
 
 export const RemovalSchema = z.object({
-  position: z.tuple([z.number(), z.number()]),
+  position: Vec2Schema,
   card: z.nativeEnum(PathCard),
 });
 
-export type Removal = z.infer<typeof RemovalSchema>;
+export type Removal = Readonly<z.infer<typeof RemovalSchema>>;

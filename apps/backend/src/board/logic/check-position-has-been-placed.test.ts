@@ -1,7 +1,7 @@
 import { PathCard } from "~/models/card";
 import { never } from "~/utils";
 import { PlacePathCardCommand } from "~/board/command";
-import checkIfAnyPositionsHasBeenPlaced from "./check-positions-has-been-placed";
+import checkPositionHasBeenPlaced from "./check-position-has-been-placed";
 
 describe("check positions has been placed", () => {
   test(`
@@ -13,7 +13,7 @@ describe("check positions has been placed", () => {
         should return place path card command
     `, () =>
     Promise.resolve(
-      checkIfAnyPositionsHasBeenPlaced([])(
+      checkPositionHasBeenPlaced([])(
         PlacePathCardCommand({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
@@ -43,7 +43,7 @@ describe("check positions has been placed", () => {
         should throw placement has been placed error
     `, () =>
     Promise.resolve(
-      checkIfAnyPositionsHasBeenPlaced([
+      checkPositionHasBeenPlaced([
         {
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
@@ -57,9 +57,9 @@ describe("check positions has been placed", () => {
     ).then((result) =>
       result.match(never, (error) =>
         expect(error).toStrictEqual(
-          AggregateError([
-            `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`,
-          ])
+          Error(
+            `the path card ${PathCard.CONNECTED_CROSS} cannot be placed at position (0,0)`
+          )
         )
       )
     ));

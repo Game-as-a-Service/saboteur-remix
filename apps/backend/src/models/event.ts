@@ -45,6 +45,11 @@ export interface ReadOption {
 }
 
 /**
+ * An event listener is a function that is called when an event is emitted.
+ */
+type EventListener<E extends Event> = (event: E) => void;
+
+/**
  * An event source is a place where events can be stored and read.
  */
 export interface EventSource<E extends Event> {
@@ -52,24 +57,24 @@ export interface EventSource<E extends Event> {
    * Append events to the event source.
    * @param events The events to append.
    */
-  append: (...events: E[]) => Promise<E[]>;
+  append(...events: E[]): Promise<E[]>;
   /**
    * Read events from the event source.
    * @param option The options for reading events.
    */
-  read: (option?: ReadOption) => Promise<E[]>;
+  read(option?: ReadOption): Promise<E[]>;
 
   /**
    * Subscribe to events from the event source.
    * @param type The type of event to subscribe to.
    * @param listener The listener to subscribe.
    */
-  on: (type: E["type"], listener: (event: E) => void) => void;
+  on(type: E["type"], listener: EventListener<E>): void;
 
   /**
    * Unsubscribe from events from the event source.
    * @param type The type of event to unsubscribe from.
    * @param listener The listener to unsubscribe.
    */
-  off: (type: E["type"], listener: (event: E) => void) => void;
+  off(type: E["type"], listener: EventListener<E>): void;
 }

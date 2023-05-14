@@ -44,12 +44,12 @@ describe("place path card", () => {
       .then((result) =>
         result.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -100,12 +100,12 @@ describe("place path card", () => {
       .then((event) =>
         event.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -121,12 +121,12 @@ describe("place path card", () => {
       .then((event) =>
         event.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [8, 0],
                 card: PathCard.GOAL_COAL_BOTTOM_LEFT,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -142,12 +142,12 @@ describe("place path card", () => {
       .then((event) =>
         event.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [8, 2],
                 card: PathCard.GOAL_GOLD,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -163,12 +163,12 @@ describe("place path card", () => {
       .then((event) =>
         event.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [8, -2],
                 card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -227,9 +227,9 @@ describe("place path card", () => {
       .then((result) =>
         result.match(never, (error) =>
           expect(error).toStrictEqual(
-            AggregateError([
-              "the path card connected cross cannot be placed at position (0,0)",
-            ])
+            Error(
+              "the path card connected cross cannot be placed at position (0,0)"
+            )
           )
         )
       ));
@@ -279,9 +279,9 @@ describe("place path card", () => {
       .then((result) =>
         result.match(never, (error) =>
           expect(error).toStrictEqual(
-            AggregateError([
-              "the path card connected cross cannot be placed at position (1,0)",
-            ])
+            Error(
+              "the path card connected bottom right cannot be placed at position (1,0)"
+            )
           )
         )
       ));
@@ -340,9 +340,9 @@ describe("place path card", () => {
       .then((result) =>
         result.match(never, (error) =>
           expect(error).toStrictEqual(
-            AggregateError([
-              "the path card [deadend left right] cannot be placed at position (1, -1)",
-            ])
+            Error(
+              "the path card deadend left right cannot be placed at position (1,-1)"
+            )
           )
         )
       ));
@@ -389,12 +389,12 @@ describe("place path card", () => {
       .then((result) =>
         result.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -409,12 +409,12 @@ describe("place path card", () => {
           .then((result) =>
             result.match(
               (event) =>
-                expect(event).toStrictEqual([
+                expect(event).toStrictEqual(
                   PathCardHasBeenPlacedEvent({
                     position: [0, 1],
                     card: PathCard.CONNECTED_CROSS,
-                  }),
-                ]),
+                  })
+                ),
               never
             )
           )

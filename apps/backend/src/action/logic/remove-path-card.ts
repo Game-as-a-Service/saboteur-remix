@@ -3,7 +3,7 @@ import { EventSource } from "~/models/event";
 import { RockfallCommand } from "~/action/command";
 import { PathCardHasBeenRemovedEvent } from "~/action/event";
 import type { BoardEvent } from "~/board/event";
-import type { RepositoryReadError } from "~/board/logic/get-current-placements";
+import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
 import getCurrentPlacements from "~/board/logic/get-current-placements";
 import { Placement } from "~/models/placement";
 import { flow, pipe } from "fp-ts/lib/function";
@@ -24,7 +24,7 @@ export type TargetCannotBeRemovedError = ReturnType<
 export type RemovePathCardError =
   | TargetCannotBeRemovedError
   | RepositoryWriteError
-  | RepositoryReadError;
+  | GetCurrentPlacementsError;
 
 export interface RemovePathCard {
   (source: EventSource<BoardCardEvent>, command: RockfallCommand): ResultAsync<

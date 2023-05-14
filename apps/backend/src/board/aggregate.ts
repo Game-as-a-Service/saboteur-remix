@@ -6,7 +6,7 @@ import { identity, throws } from "~/utils";
 import { PlacePathCardCommand, isPlacePathCardCommand } from "~/board/command";
 
 interface Aggregate {
-  (command: PlacePathCardCommand): Promise<BoardEvent[]>;
+  (command: PlacePathCardCommand): Promise<BoardEvent>;
 }
 export const aggregate =
   (repository: EventSource<BoardEvent>): Aggregate =>

@@ -1,10 +1,11 @@
 import z from "zod";
+import { Vec2, Vec2Schema } from "../models/vec2";
 
 export const GoalCardHasBeenRevealEventSchema = z.object({
   type: z.literal("goal card has been reveal"),
   data: z.object({
     playerId: z.string(),
-    position: z.tuple([z.number(), z.number()]),
+    position: Vec2Schema,
   }),
 });
 
@@ -17,10 +18,10 @@ export const isGoalCardHasBeenRevealEvent = (
 ): event is GoalCardHasBeenRevealEvent =>
   GoalCardHasBeenRevealEventSchema.safeParse(event).success;
 
-export const GoalCardHasBeenRevealEvent = (
-  playerId: string,
-  position: [number, number]
-): GoalCardHasBeenRevealEvent => ({
+export const GoalCardHasBeenRevealEvent = (data: {
+  playerId: string;
+  position: Vec2;
+}): GoalCardHasBeenRevealEvent => ({
   type: "goal card has been reveal",
-  data: { playerId, position },
+  data,
 });
