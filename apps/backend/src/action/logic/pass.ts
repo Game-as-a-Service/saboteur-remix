@@ -1,8 +1,11 @@
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
-import { TurnHasBeenPassedEvent } from "~/action/event";
-import { always, error } from "~/utils";
+import {
+  TurnHasBeenPassedEvent,
+  isTurnHasBeenPassedEvent,
+} from "~/action/event";
+import { always, error, identity } from "~/utils";
 import getCurrentPlayerHand, {
   GetCurrentPlayerHandError,
 } from "./get-current-player-hand";
@@ -30,14 +33,12 @@ export interface Pass {
   ): ResultAsync<TurnHasBeenPassedEvent[], PassError>;
 }
 
-const appendEventToEventSource = (
-  source: EventSource<TurnHasBeenPassedEvent>,
-  command: PassCommand
-) =>
-  ResultAsync.fromPromise(
-    source.append(TurnHasBeenPassedEvent(command.data.card)),
-    always(RepositoryWriteError("failed to write event to repository"))
-  );
+const appendEventToEventSource =
+  (source: EventSource<TurnHasBeenPassedEvent>, command: PassCommand) => () =>
+    ResultAsync.fromPromise(
+      source.append(TurnHasBeenPassedEvent(command.data.card)),
+      always(RepositoryWriteError("failed to write event to repository"))
+    );
 
 /**
  * *description*
@@ -60,7 +61,7 @@ export const pass: Pass = (
         // no hands and no discard card
         .with(
           [P.nullish, []],
-          always(appendEventToEventSource(source, command))
+          always(okAsync(true))
           //
         )
         // has hands and no discard card
@@ -91,17 +92,18 @@ export const pass: Pass = (
         )
         .exhaustive()
     )
-    .andThen((hasCardOrEvent) =>
-      match(hasCardOrEvent)
+    .andThen((canPass) =>
+      match(canPass)
         // has card
-        .with(true, always(appendEventToEventSource(source, command)))
+        .with(true, okAsync)
         // not has card
         .with(
           false,
           always(errAsync(PassFailedError("Player does not have this card")))
         )
         // event
-        .otherwise(okAsync)
-    );
+        .exhaustive()
+    )
+    .andThen(appendEventToEventSource(source, command));
 
 export default pass;
