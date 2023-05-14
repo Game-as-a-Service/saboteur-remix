@@ -172,7 +172,7 @@ describe("pass", () => {
       PlayerHadHandLeftEvent([PathCard.CONNECTED_CROSS])
     );
 
-    await pass(source, PassCommand()).match(
+    await pass(source, PassCommand(PathCard.CONNECTED_CROSS)).match(
       (event) =>
         expect(event).toStrictEqual([
           TurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
