@@ -1,12 +1,12 @@
 import { EventSource } from "~/models/event";
-import { TurnHasBeenPassedEvent } from "../event";
+import { TurnHasBeenPassedEvent, Event } from "../event";
 import pass from "./pass";
 import { PassCommand } from "../command";
 import { PathCard } from "~/models/card";
 import { never } from "~/utils";
 
 describe("pass", () => {
-  let source: EventSource<TurnHasBeenPassedEvent>;
+  let source: EventSource<Event>;
 
   beforeEach(() => {
     let store: unknown[] = [];

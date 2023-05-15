@@ -1,12 +1,8 @@
-import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
-import { TurnHasBeenPassedEvent } from "~/action/event";
+import { TurnHasBeenPassedEvent, Event } from "~/action/event";
 import { always, error } from "~/utils";
-
-import { Event as ActionEvent } from "~/action/event";
-import { P, match } from "ts-pattern";
-import { pipe } from "fp-ts/function";
 
 const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
@@ -17,10 +13,10 @@ export type PassFailedError = ReturnType<typeof PassFailedError>;
 export type PassError = RepositoryWriteError | PassFailedError;
 
 export interface Pass {
-  (
-    source: EventSource<TurnHasBeenPassedEvent>,
-    command: PassCommand
-  ): ResultAsync<TurnHasBeenPassedEvent[], PassError>;
+  (source: EventSource<Event>, command: PassCommand): ResultAsync<
+    TurnHasBeenPassedEvent[],
+    PassError
+  >;
 }
 
 const appendEventToEventSource = (
@@ -43,8 +39,22 @@ const appendEventToEventSource = (
  * *param* source - event source
  * *param* command - pass command
  */
-export const pass: Pass = (
-  source: EventSource<TurnHasBeenPassedEvent>,
-  command: PassCommand
-) => appendEventToEventSource(source, command);
+export const pass: Pass = (source: EventSource<Event>, command: PassCommand) =>
+  // @todo should validate the user hands
+  /**
+   *
+   * 1. check player have cards left
+   *  if the player has no cards left and the discard card eq null
+   *    - can Pass
+   *
+   * 2. check player have the card
+   *  get player hands if hands can find the discard card
+   *    - can Pass
+   *  else not find
+   *    - Error
+   **/
+  appendEventToEventSource(
+    source as EventSource<TurnHasBeenPassedEvent>,
+    command
+  );
 export default pass;
