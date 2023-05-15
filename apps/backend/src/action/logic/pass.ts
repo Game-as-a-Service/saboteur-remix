@@ -1,17 +1,11 @@
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
-import {
-  TurnHasBeenPassedEvent,
-  isTurnHasBeenPassedEvent,
-} from "~/action/event";
-import { always, error, identity } from "~/utils";
-import getCurrentPlayerHand, {
-  GetCurrentPlayerHandError,
-} from "./get-current-player-hand";
+import { TurnHasBeenPassedEvent } from "~/action/event";
+import { always, error } from "~/utils";
+
 import { Event as ActionEvent } from "~/action/event";
 import { P, match } from "ts-pattern";
-import checkDeckHasCard, { CheckDeckHasCardError } from "./check-deck-has-card";
 import { pipe } from "fp-ts/function";
 
 const RepositoryWriteError = error("RepositoryWriteError");
@@ -20,11 +14,7 @@ export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
 const PassFailedError = error("PassFailedError");
 export type PassFailedError = ReturnType<typeof PassFailedError>;
 
-export type PassError =
-  | RepositoryWriteError
-  | PassFailedError
-  | CheckDeckHasCardError
-  | GetCurrentPlayerHandError;
+export type PassError = RepositoryWriteError | PassFailedError;
 
 export interface Pass {
   (
@@ -33,12 +23,14 @@ export interface Pass {
   ): ResultAsync<TurnHasBeenPassedEvent[], PassError>;
 }
 
-const appendEventToEventSource =
-  (source: EventSource<TurnHasBeenPassedEvent>, command: PassCommand) => () =>
-    ResultAsync.fromPromise(
-      source.append(TurnHasBeenPassedEvent(command.data.card)),
-      always(RepositoryWriteError("failed to write event to repository"))
-    );
+const appendEventToEventSource = (
+  source: EventSource<TurnHasBeenPassedEvent>,
+  command: PassCommand
+) =>
+  ResultAsync.fromPromise(
+    source.append(TurnHasBeenPassedEvent(command.data.card)),
+    always(RepositoryWriteError("failed to write event to repository"))
+  );
 
 /**
  * *description*
@@ -54,56 +46,5 @@ const appendEventToEventSource =
 export const pass: Pass = (
   source: EventSource<TurnHasBeenPassedEvent>,
   command: PassCommand
-) =>
-  getCurrentPlayerHand(source as EventSource<ActionEvent>)
-    .andThen((deck) =>
-      match([command.data.card, deck])
-        // no hands and no discard card
-        .with(
-          [P.nullish, []],
-          always(okAsync(true))
-          //
-        )
-        // has hands and no discard card
-        .with(
-          [P.nullish, P._],
-          always(
-            errAsync(
-              PassFailedError(
-                "Player has remaining card, so nullish discard card cannot be sent"
-              )
-            )
-          )
-          //
-        )
-        // has discard card
-        .with(
-          [P.not(P.nullish), P._],
-          always(
-            pipe(
-              command.data.card,
-              checkDeckHasCard(deck)
-              //
-            ).match<ResultAsync<boolean, CheckDeckHasCardError>>(
-              okAsync,
-              errAsync
-            )
-          )
-        )
-        .exhaustive()
-    )
-    .andThen((canPass) =>
-      match(canPass)
-        // has card
-        .with(true, okAsync)
-        // not has card
-        .with(
-          false,
-          always(errAsync(PassFailedError("Player does not have this card")))
-        )
-        // event
-        .exhaustive()
-    )
-    .andThen(appendEventToEventSource(source, command));
-
+) => appendEventToEventSource(source, command);
 export default pass;
