@@ -286,17 +286,51 @@ describe("place path card", () => {
         )
       ));
 
-  test.todo(`
-    given:
-      a board with
-        - a start card at position (0, 0)
-        - a path card [connected bottom right] at position (1, 0)
-    when:
-      place
-        path card [connected left right] at position (2, 0)
-    then:
-      the path card cannot be placed.
-  `);
+  test(`
+      given:
+        a board with
+          - start card at position (0, 0)
+          - path card [connected bottom left] at position (1, 0)
+      when:
+        place
+          path card [connected left right] at position (2, 0)
+      then:
+        the path card cannot be placed.
+    `, () => {
+    Promise.resolve()
+      .then(() => {
+        source.append(
+          PathCardHasBeenPlacedEvent({
+            position: [0, 0],
+            card: PathCard.START,
+          })
+        );
+        source.append(
+          PathCardHasBeenPlacedEvent({
+            position: [1, 0],
+            card: PathCard.CONNECTED_BOTTOM_LEFT,
+          })
+        );
+      })
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [2, 0],
+            card: PathCard.CONNECTED_LEFT_RIGHT,
+          })
+        )
+      )
+      .then((result) =>
+        result.match(never, (error) =>
+          expect(error).toStrictEqual(
+            AggregateError([
+              "the path card [connected left right] cannot be placed at position (2, 0)",
+            ])
+          )
+        )
+      );
+  });
 
   test(`
   given:
@@ -347,7 +381,7 @@ describe("place path card", () => {
         )
       ));
 
-  test.todo(`
+  test(`
     given:
       a board with
         - a start card at position (0, 0)
@@ -361,8 +395,89 @@ describe("place path card", () => {
           - path card [connected left bottom] at position (2, 0)
       - event source should includes
         - path card has been placed event with
+          - a start card at position (0, 0)
+          - a path card [connected top left right] at position (1, 0)
           - path card [connected left bottom] at position (2, 0)
-  `);
+          `, async () =>
+    placePathCard(
+      source,
+      PlacePathCardCommand({
+        position: [0, 0],
+        card: PathCard.START,
+      })
+    )
+      .then((result) =>
+        result.match(
+          (event) =>
+            expect(event).toStrictEqual([
+              PathCardHasBeenPlacedEvent({
+                position: [0, 0],
+                card: PathCard.START,
+              }),
+            ]),
+          never
+        )
+      )
+      .then(() =>
+        placePathCard(
+          source,
+          PlacePathCardCommand({
+            position: [1, 0],
+            card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+          })
+        )
+          .then((result) =>
+            result.match(
+              (event) =>
+                expect(event).toStrictEqual([
+                  PathCardHasBeenPlacedEvent({
+                    position: [1, 0],
+                    card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+                  }),
+                ]),
+              never
+            )
+          )
+          .then(() =>
+            placePathCard(
+              source,
+              PlacePathCardCommand({
+                position: [2, 0],
+                card: PathCard.CONNECTED_BOTTOM_LEFT,
+              })
+            )
+          )
+          .then((result) =>
+            result.match(
+              (event) =>
+                expect(event).toStrictEqual([
+                  PathCardHasBeenPlacedEvent({
+                    position: [2, 0],
+                    card: PathCard.CONNECTED_BOTTOM_LEFT,
+                  }),
+                ]),
+              never
+            )
+          )
+          .then(() =>
+            source.read().then((events) =>
+              expect(events).toStrictEqual([
+                PathCardHasBeenPlacedEvent({
+                  position: [0, 0],
+                  card: PathCard.START,
+                }),
+                PathCardHasBeenPlacedEvent({
+                  position: [1, 0],
+                  card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
+                }),
+                PathCardHasBeenPlacedEvent({
+                  position: [2, 0],
+                  card: PathCard.CONNECTED_BOTTOM_LEFT,
+                }),
+              ])
+            )
+          )
+      ));
 
   test(`
     given:
