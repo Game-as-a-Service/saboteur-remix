@@ -1,5 +1,12 @@
 export enum Tool {
-  Cart,
-  Lamp,
-  Pickaxe,
+  Cart = "Cart",
+  Lamp = "Lamp",
+  Pickaxe = "Pickaxe",
 }
+
+export enum ToolState {
+  Broken = "broken",
+  NotBroken = "not broken",
+}
+
+export type PlayerToolState = Record<Tool, ToolState>;
