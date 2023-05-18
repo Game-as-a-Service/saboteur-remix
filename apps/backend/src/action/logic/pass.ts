@@ -1,20 +1,23 @@
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import { PassCommand } from "~/action/command";
-import { TurnHasBeenPassedEvent } from "~/action/event";
+import { TurnHasBeenPassedEvent, Event } from "~/action/event";
 import { always, error } from "~/utils";
 
+const RepositoryWriteError = error("RepositoryWriteError");
 export type RepositoryWriteError = ReturnType<typeof RepositoryWriteError>;
-export type PassError = RepositoryWriteError;
+
+const PassFailedError = error("PassFailedError");
+export type PassFailedError = ReturnType<typeof PassFailedError>;
+
+export type PassError = RepositoryWriteError | PassFailedError;
 
 export interface Pass {
-  (
-    source: EventSource<TurnHasBeenPassedEvent>,
-    command: PassCommand
-  ): ResultAsync<TurnHasBeenPassedEvent[], Error /* PassError */>;
+  (source: EventSource<Event>, command: PassCommand): ResultAsync<
+    TurnHasBeenPassedEvent[],
+    PassError
+  >;
 }
-
-const RepositoryWriteError = error("RepositoryWriteError");
 
 const appendEventToEventSource = (
   source: EventSource<TurnHasBeenPassedEvent>,
@@ -36,7 +39,7 @@ const appendEventToEventSource = (
  * *param* source - event source
  * *param* command - pass command
  */
-export const pass: Pass = (source, command) =>
+export const pass: Pass = (source: EventSource<Event>, command: PassCommand) =>
   // @todo should validate the user hands
   /**
    *
@@ -50,6 +53,8 @@ export const pass: Pass = (source, command) =>
    *  else not find
    *    - Error
    **/
-  errAsync(new Error("not implemented"));
-
+  appendEventToEventSource(
+    source as EventSource<TurnHasBeenPassedEvent>,
+    command
+  );
 export default pass;
