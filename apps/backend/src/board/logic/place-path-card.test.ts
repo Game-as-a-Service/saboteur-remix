@@ -324,9 +324,9 @@ describe("place path card", () => {
       .then((result) =>
         result.match(never, (error) =>
           expect(error).toStrictEqual(
-            AggregateError([
-              "the path card [connected left right] cannot be placed at position (2, 0)",
-            ])
+            Error(
+              "the path card connected left right cannot be placed at position (2,0)"
+            )
           )
         )
       );
@@ -409,12 +409,12 @@ describe("place path card", () => {
       .then((result) =>
         result.match(
           (event) =>
-            expect(event).toStrictEqual([
+            expect(event).toStrictEqual(
               PathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
-              }),
-            ]),
+              })
+            ),
           never
         )
       )
@@ -429,12 +429,12 @@ describe("place path card", () => {
           .then((result) =>
             result.match(
               (event) =>
-                expect(event).toStrictEqual([
+                expect(event).toStrictEqual(
                   PathCardHasBeenPlacedEvent({
                     position: [1, 0],
                     card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
-                  }),
-                ]),
+                  })
+                ),
               never
             )
           )
@@ -450,12 +450,12 @@ describe("place path card", () => {
           .then((result) =>
             result.match(
               (event) =>
-                expect(event).toStrictEqual([
+                expect(event).toStrictEqual(
                   PathCardHasBeenPlacedEvent({
                     position: [2, 0],
                     card: PathCard.CONNECTED_BOTTOM_LEFT,
-                  }),
-                ]),
+                  })
+                ),
               never
             )
           )
