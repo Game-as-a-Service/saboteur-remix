@@ -4,7 +4,7 @@ import z from "zod";
 
 export const PathCardHasBeenPlacedEventSchema = z.object({
   type: z.literal("path card has been placed"),
-  data: z.array(PlacementSchema),
+  data: PlacementSchema,
 });
 
 export type PathCardHasBeenPlacedEvent = Readonly<
@@ -17,5 +17,5 @@ export const isPathCardHasBeenPlacedEvent = (
   PathCardHasBeenPlacedEventSchema.safeParse(event).success;
 
 export const createPathCardHasBeenPlacedEvent = (
-  ...data: Placement[]
+  data: Placement
 ): PathCardHasBeenPlacedEvent => ({ type: "path card has been placed", data });
