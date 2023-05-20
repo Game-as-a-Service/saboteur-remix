@@ -1,3 +1,6 @@
+export type Card = PathCard | ActionCard | RoleCard;
+export type HandCard = PathCard | ActionCard;
+
 export enum PathCard {
   START = "start",
   GOAL_GOLD = "goal gold",

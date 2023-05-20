@@ -35,9 +35,7 @@ export function throws(data: unknown): never {
 }
 
 export const error: ErrorFactory = (name) => (message) =>
-  Object.assign(Error(message), {
-    name,
-  });
+  Object.assign(Error(message), { name });
 
 export function never() {
   throw new Error("should not be called");
