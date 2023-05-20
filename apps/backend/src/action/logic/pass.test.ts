@@ -1,8 +1,12 @@
 import { EventSource } from "~/models/event";
-import { TurnHasBeenPassedEvent } from "../event";
+import { TurnHasBeenPassedEvent, Event } from "../event";
+import pass from "./pass";
+import { PassCommand } from "../command";
+import { PathCard } from "~/models/card";
+import { never } from "~/utils";
 
 describe("pass", () => {
-  let source: EventSource<TurnHasBeenPassedEvent>;
+  let source: EventSource<Event>;
 
   beforeEach(() => {
     let store: unknown[] = [];
@@ -17,103 +21,58 @@ describe("pass", () => {
     source = { append, read, on: jest.fn(), off: jest.fn() };
   });
 
-  /**
-   * 由於目前抽牌事件是否要綁在這個流程還不確定
-   * 因此到時候可能移除
-   */
+  test(`
+    given: 
+      a discord cord with
+        - empty  { null }
+    when:
+      pass the current turn
+    then:
+      - should return
+        - turn has been passed with
+          - discard card is null
+      - event source should includes
+        - turn has been passed event with
+          - discard card is null
+  `, async () => {
+    await pass(source, PassCommand()).match(
+      (event) => expect(event).toStrictEqual([TurnHasBeenPassedEvent()]),
+      never
+    );
 
-  test.todo(`
-      given: 
-        a player with
-          - hands is empty array
-        a discord cord with
-          - empty  { null }
-      when:
-        pass the current turn
-      then:
-        - should return
-          - turn has been passed with
-            - discard card is null
-        - event source should includes
-          - turn has been passed event with
-            - discard card is null
-  `);
+    source
+      .read()
+      .then((result) =>
+        expect(result).toStrictEqual([TurnHasBeenPassedEvent()])
+      );
+  });
 
-  test.todo(`
-      given: 
-        a player with
-          - hands is empty array
-        a discord cord with
-          - empty  { null }
-      when:
-        pass the current turn
-      then:
-        - should return
-          - turn has been passed with
-            - discard card is null
-        - event source should includes
-          - turn has been passed event with
-            - discard card is null
-  `);
+  test(`
+    given: 
+      a discord cord with
+        - the card is {PathCard}
 
-  test.todo(`
-      given: 
-        a player with
-          - hands with cards remaining
-        a discord cord with
-          - empty  { null }
-      when:
-        pass the current turn
-      then:
-        - should return 
-          - turn has been passed error with
-            - player has cards remaining, so cannot choose to not discard a card
-  `);
+    when:
+      pass the current turn
+    then:
+      - should return
+        - turn has been passed with
+          - discard a card is {PathCard}
+  `, async () => {
+    await pass(source, PassCommand(PathCard.CONNECTED_CROSS)).match(
+      (event) =>
+        expect(event).toStrictEqual([
+          TurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
+        ]),
+      never
+    );
 
-  test.todo(`
-      given: 
-        a player with
-          - hands with cards remaining
-        a discord cord with
-          - the card not from this player hands
-      when:
-        pass the current turn
-      then:
-        - should return 
-          - turn has been passed error with
-            - player chooses to discard a card that was not drawn from self hand
-  `);
-
-  test.todo(`
-      given: 
-        a player with
-          - hands is empty array
-        a discord cord with
-          - any {PathCard}
-      when:
-        pass the current turn
-      then:
-        - should return 
-          - turn has been passed error with
-            - player chooses to discard a card that was not drawn from self hand
-  `);
-
-  test.todo(`
-      given: 
-        a player with
-          - hands with cards remaining
-        a discord cord with
-          - the card from this player hands
-        event source with
-          - deck with cards remaining
-      when:
-        pass the current turn
-      then:
-        - should return
-          - turn has been passed with
-            - discard a card is {PathCard}
-        - event source should includes
-          - turn has been passed event with
-            - discard a card is {PathCard}
-  `);
+    source
+      .read()
+      .then((result) =>
+        expect(result).toStrictEqual([
+          TurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
+        ])
+      );
+  });
 });
