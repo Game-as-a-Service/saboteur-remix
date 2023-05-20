@@ -1,8 +1,9 @@
-import { ResultAsync, err, ok } from "neverthrow";
-import { flow, pipe } from "fp-ts/lib/function";
+import { ResultAsync } from "neverthrow";
+import { flow } from "fp-ts/lib/function";
+import { reduce, filter } from "fp-ts/lib/Array";
 import { match } from "ts-pattern";
-import * as Array from "fp-ts/lib/Array";
-import * as E from "fp-ts/Either";
+import { elem } from "fp-ts/Record";
+import { Eq as stringEq } from "fp-ts/string";
 import { BrokenToolCommand } from "~/action/command";
 import {
   Event,
@@ -10,8 +11,8 @@ import {
   isBrokenToolHasBeenRemovedEvent,
 } from "~/action/event";
 import type { EventSource } from "~/models/event";
-import { Tool } from "~/models/tool";
-import { always, error, identity } from "~/utils";
+import { PlayerToolState, Tool, ToolState } from "~/models/tool";
+import { always, assoc, error, throws } from "~/utils";
 
 const EventSourceReadError = error("EventSourceReadError");
 const ToolHasBeenBrokenError = error("ToolHasBeenBrokenError");
@@ -19,14 +20,12 @@ const ToolHasBeenBrokenError = error("ToolHasBeenBrokenError");
 type EventSourceReadError = ReturnType<typeof EventSourceReadError>;
 type ToolHasBeenBrokenError = ReturnType<typeof ToolHasBeenBrokenError>;
 
-export type CheckToolHasBrokenError =
-  | EventSourceReadError
-  | ToolHasBeenBrokenError;
+export type EventSourceReadError = ReturnType<typeof EventSourceReadError>;
 
 export interface CheckToolHasBroken {
   (repository: EventSource<Event>, command: BrokenToolCommand): ResultAsync<
-    BrokenToolCommand,
-    CheckToolHasBrokenError
+    boolean,
+    EventSourceReadError
   >;
 }
 
@@ -36,42 +35,46 @@ const readAllEventsFromEventSource = (source: EventSource<Event>) =>
     always(EventSourceReadError("failed to read events from source"))
   );
 
-const aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer = (
+const filterAllEventsByPlayerId =
+  (command: BrokenToolCommand) => (event: Event) =>
+    match(event.data)
+      .with({ playerId: command.data.playerId }, always(true))
+      .otherwise(always(false));
+
+const validatePlayerToolCanBeBroken =
+  (state: PlayerToolState) =>
+  ({ data: { playerId, tool } }: BrokenToolHasBeenPlacedEvent) =>
+    state[tool] === ToolState.NotBroken
+      ? assoc(tool, ToolState.Broken, state)
+      : throws(
+          ToolHasBeenBrokenError(
+            `can not broke player ${playerId} tool ${tool}`
+          )
+        );
+
+const validatePlayerToolCanBeFixed =
+  (state: PlayerToolState) =>
+  ({ data: { playerId, tool } }: BrokenToolHasBeenRemovedEvent) =>
+    state[tool] === ToolState.Broken
+      ? assoc(tool, ToolState.NotBroken, state)
+      : throws(
+          ToolHasNotBeenBrokenError(
+            `can not fix player ${playerId} tool ${tool}`
+          )
+        );
+
+const updatePlayerToolState = (state: PlayerToolState, event: Event) =>
+  match(event)
+    .when(isBrokenToolHasBeenPlacedEvent, validatePlayerToolCanBeBroken(state))
+    .when(isBrokenToolHasBeenRemovedEvent, validatePlayerToolCanBeFixed(state))
+    .otherwise(always(state));
+
+export const aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer = (
   command: BrokenToolCommand
 ) =>
-  Array.reduce<Event, Tool[]>([], (brokenTools, event) =>
-    match(event)
-      .when(isBrokenToolHasBeenPlacedEvent, (e) =>
-        pipe(
-          e.data,
-          E.fromPredicate(
-            ({ playerId }) => playerId === command.data.playerId,
-            always(brokenTools)
-          ),
-          E.match(identity, ({ tool }) =>
-            pipe(
-              brokenTools,
-              Array.append(tool) //
-            )
-          )
-        )
-      )
-      .when(isBrokenToolHasBeenRemovedEvent, (e) =>
-        pipe(
-          e.data,
-          E.fromPredicate(
-            ({ playerId }) => playerId === command.data.playerId,
-            always(brokenTools)
-          ),
-          E.match(identity, ({ tool }) =>
-            pipe(
-              brokenTools,
-              Array.filter((brokenTool) => tool !== brokenTool)
-            )
-          )
-        )
-      )
-      .otherwise(always(brokenTools))
+  flow(
+    filter(filterAllEventsByPlayerId(command)),
+    reduce(InitialPlayerToolState, updatePlayerToolState)
   );
 
 /**
@@ -84,18 +87,6 @@ const aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer = (
 export const checkToolHasBroken: CheckToolHasBroken = (source, command) =>
   readAllEventsFromEventSource(source)
     .map(aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer(command))
-    .andThen(
-      flow(
-        E.fromPredicate(
-          (brokenTools) => brokenTools.length === 0,
-          always(
-            ToolHasBeenBrokenError(
-              `the player ${command.data.playerId} tool has been broken`
-            )
-          )
-        ),
-        E.matchW(err, always(ok(command)))
-      )
-    );
+    .map((state) => elem(stringEq)(ToolState.Broken, state));
 
 export default checkToolHasBroken;

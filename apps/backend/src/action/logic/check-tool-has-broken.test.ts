@@ -85,9 +85,16 @@ describe("check tool has broken", () => {
         BrokenToolHasBeenPlacedEvent(tool, "player1")
       );
 
-      expect(() =>
-        checkToolHasBroken(source, BrokenToolCommand(tool, "player1"))
-      ).rejects.toThrow(`can not broke player player1 tool ${tool}`);
+      const result = await checkToolHasBroken(
+        source,
+        BrokenToolCommand(tool, "player1")
+      );
+
+      result.match(never, (error) => {
+        expect(error).toStrictEqual(
+          Error(`can not broke player player1 tool ${tool}`)
+        );
+      });
     }
   );
 
@@ -108,9 +115,16 @@ describe("check tool has broken", () => {
         BrokenToolHasBeenRemovedEvent(tool, "player1")
       );
 
-      expect(() =>
-        checkToolHasBroken(source, BrokenToolCommand(tool, "player1"))
-      ).rejects.toThrow(`can not fix player player1 tool ${tool}`);
+      const result = await checkToolHasBroken(
+        source,
+        BrokenToolCommand(tool, "player1")
+      );
+
+      result.match(never, (error) => {
+        expect(error).toStrictEqual(
+          Error(`can not fix player player1 tool ${tool}`)
+        );
+      });
     }
   );
 
