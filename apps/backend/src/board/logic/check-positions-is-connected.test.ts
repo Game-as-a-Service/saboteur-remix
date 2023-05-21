@@ -1,10 +1,9 @@
-import { PathCard } from "~/models/card";
 import { Position } from "./get-available-positions";
 import {
   getNeighbors,
   isConnectNeighbor,
 } from "./check-positions-is-connected";
-import { Placement } from "~/models/placement";
+import { PathCard, Placement } from "@packages/domain";
 
 describe("check positions is connected", () => {
   let board: Placement[];

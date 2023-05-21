@@ -1,9 +1,12 @@
 import { EventSource } from "~/models/event";
-import { TurnHasBeenPassedEvent, Event } from "../event";
 import pass from "./pass";
-import { PassCommand } from "../command";
-import { PathCard } from "~/models/card";
 import { never } from "~/utils";
+import {
+  Event,
+  PathCard,
+  createPassCommand,
+  createTurnHasBeenPassedEvent,
+} from "@packages/domain";
 
 describe("pass", () => {
   let source: EventSource<Event>;
@@ -22,7 +25,7 @@ describe("pass", () => {
   });
 
   test(`
-    given: 
+    given:
       a discord cord with
         - empty  { null }
     when:
@@ -35,20 +38,20 @@ describe("pass", () => {
         - turn has been passed event with
           - discard card is null
   `, async () => {
-    await pass(source, PassCommand()).match(
-      (event) => expect(event).toStrictEqual([TurnHasBeenPassedEvent()]),
+    await pass(source, createPassCommand()).match(
+      (event) => expect(event).toStrictEqual(createTurnHasBeenPassedEvent()),
       never
     );
 
     source
       .read()
       .then((result) =>
-        expect(result).toStrictEqual([TurnHasBeenPassedEvent()])
+        expect(result).toStrictEqual([createTurnHasBeenPassedEvent()])
       );
   });
 
   test(`
-    given: 
+    given:
       a discord cord with
         - the card is {PathCard}
 
@@ -59,11 +62,11 @@ describe("pass", () => {
         - turn has been passed with
           - discard a card is {PathCard}
   `, async () => {
-    await pass(source, PassCommand(PathCard.CONNECTED_CROSS)).match(
+    await pass(source, createPassCommand(PathCard.CONNECTED_CROSS)).match(
       (event) =>
-        expect(event).toStrictEqual([
-          TurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
-        ]),
+        expect(event).toStrictEqual(
+          createTurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS)
+        ),
       never
     );
 
@@ -71,7 +74,7 @@ describe("pass", () => {
       .read()
       .then((result) =>
         expect(result).toStrictEqual([
-          TurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
+          createTurnHasBeenPassedEvent(PathCard.CONNECTED_CROSS),
         ])
       );
   });

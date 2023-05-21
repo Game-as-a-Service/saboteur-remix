@@ -1,10 +1,6 @@
-import type { Placement } from "~/models/placement";
-import type { PlacePathCardCommand } from "~/board/command";
-import { PathCard, GoalCards } from "~/models/card";
 import { err, ok, Result } from "neverthrow";
 import { prop, error, identity } from "~/utils";
 import { flow, pipe } from "fp-ts/lib/function";
-import * as Vec from "~/models/vec";
 import * as Either from "fp-ts/Either";
 import getAvailablePositions, {
   PathCardRule,
@@ -12,8 +8,15 @@ import getAvailablePositions, {
   available,
   directions2Vec,
 } from "./get-available-positions";
-import { Direction } from "~/models/direction";
 import { P, match } from "ts-pattern";
+import {
+  Direction,
+  GoalCards,
+  PathCard,
+  Placement,
+  PlacePathCardCommand,
+  Vec,
+} from "@packages/domain";
 
 const PlacementCannotConnectFromStartError = error(
   "PlacementCannotConnectFromStartError"

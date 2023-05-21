@@ -1,7 +1,10 @@
+import {
+  BrokenToolCommand,
+  BrokenToolHasBeenPlacedEvent,
+  Event,
+} from "@packages/domain";
 import { ResultAsync, errAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
-import { BrokenToolCommand } from "~/action/command";
-import { BrokenToolHasBeenPlacedEvent, Event } from "~/action/event";
 
 export interface PlaceBrokenTool {
   (source: EventSource<Event>, command: BrokenToolCommand): ResultAsync<

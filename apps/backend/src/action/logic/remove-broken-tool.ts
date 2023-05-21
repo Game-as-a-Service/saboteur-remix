@@ -1,7 +1,10 @@
+import {
+  BrokenToolHasBeenRemovedEvent,
+  Event,
+  FixToolCommand,
+} from "@packages/domain";
 import { ResultAsync, errAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
-import { FixToolCommand } from "~/action/command";
-import { BrokenToolHasBeenRemovedEvent, Event } from "~/action/event";
 
 export interface RemoveBrokenTool {
   (source: EventSource<Event>, command: FixToolCommand): ResultAsync<

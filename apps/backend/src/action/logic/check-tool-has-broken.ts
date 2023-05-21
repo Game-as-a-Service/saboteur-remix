@@ -1,7 +1,6 @@
 import { EventSource } from "~/models/event";
-import { Event } from "~/action/event";
-import { BrokenToolCommand } from "~/action/command";
 import { ResultAsync, errAsync } from "neverthrow";
+import { BrokenToolCommand, Event } from "@packages/domain";
 
 export interface CheckToolHasBroken {
   (repository: EventSource<Event>, command: BrokenToolCommand): ResultAsync<

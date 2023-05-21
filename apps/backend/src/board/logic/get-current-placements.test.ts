@@ -1,11 +1,14 @@
 import type { EventSource } from "~/models/event";
 import getCurrentPlacements from "~/board/logic/get-current-placements";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import { PathCard } from "~/models/card";
 import { never } from "~/utils";
+import {
+  Event,
+  PathCard,
+  createPathCardHasBeenPlacedEvent,
+} from "@packages/domain";
 
 describe("get current placements", () => {
-  let source: EventSource<PathCardHasBeenPlacedEvent>;
+  let source: EventSource<Event>;
 
   beforeEach(() => {
     let store: unknown[] = [];
@@ -48,7 +51,7 @@ describe("get current placements", () => {
     `, () =>
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.START,
           position: [0, 0],
         })
@@ -85,19 +88,19 @@ describe("get current placements", () => {
   `, () =>
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.START,
           position: [0, 0],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_COAL_BOTTOM_LEFT,
           position: [8, 0],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_GOLD,
           position: [8, 2],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
           position: [8, -2],
         })
@@ -148,23 +151,23 @@ describe("get current placements", () => {
   `, () =>
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.START,
           position: [0, 0],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 1],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_COAL_BOTTOM_LEFT,
           position: [8, 0],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_GOLD,
           position: [8, 2],
         }),
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
           position: [8, -2],
         })

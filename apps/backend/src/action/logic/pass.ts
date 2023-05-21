@@ -1,7 +1,11 @@
+import {
+  Event,
+  PassCommand,
+  TurnHasBeenPassedEvent,
+  createTurnHasBeenPassedEvent,
+} from "@packages/domain";
 import { ResultAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
-import { PassCommand } from "~/action/command";
-import { TurnHasBeenPassedEvent, Event } from "~/action/event";
 import { always, error } from "~/utils";
 
 const RepositoryWriteError = error("RepositoryWriteError");
@@ -14,17 +18,17 @@ export type PassError = RepositoryWriteError | PassFailedError;
 
 export interface Pass {
   (source: EventSource<Event>, command: PassCommand): ResultAsync<
-    TurnHasBeenPassedEvent[],
+    TurnHasBeenPassedEvent,
     PassError
   >;
 }
 
 const appendEventToEventSource = (
-  source: EventSource<TurnHasBeenPassedEvent>,
+  source: EventSource<Event>,
   command: PassCommand
 ) =>
   ResultAsync.fromPromise(
-    source.append(TurnHasBeenPassedEvent(command.data.card)),
+    source.append(createTurnHasBeenPassedEvent(command.data.card)),
     always(RepositoryWriteError("failed to write event to repository"))
   );
 
@@ -39,7 +43,7 @@ const appendEventToEventSource = (
  * *param* source - event source
  * *param* command - pass command
  */
-export const pass: Pass = (source: EventSource<Event>, command: PassCommand) =>
+export const pass: Pass = (source, command) =>
   // @todo should validate the user hands
   /**
    *
@@ -53,8 +57,7 @@ export const pass: Pass = (source: EventSource<Event>, command: PassCommand) =>
    *  else not find
    *    - Error
    **/
-  appendEventToEventSource(
-    source as EventSource<TurnHasBeenPassedEvent>,
-    command
+  appendEventToEventSource(source, command).map(
+    always(createTurnHasBeenPassedEvent(command.data.card))
   );
 export default pass;

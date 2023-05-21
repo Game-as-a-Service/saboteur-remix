@@ -22,8 +22,15 @@ export default function Route() {
   useEffect(() => {
     const disconnect = connectClient({
       url: data.SOCKET_URL,
-      onPathCardHasBeenPlaced: store.dispatch,
-      onBoardUpdated: store.dispatch,
+      onSchemaValidationError: console.log,
+      // events
+      onPathCardHasBeenPlaced: console.log,
+      onPathCardHasBeenRemoved: console.log,
+      onTurnHasBeenPassed: console.log,
+      onBrokenToolHasBeenPlaced: console.log,
+      onBrokenToolHasBeenRemoved: console.log,
+      // query
+      onBoardUpdated: console.log,
     });
 
     return disconnect;

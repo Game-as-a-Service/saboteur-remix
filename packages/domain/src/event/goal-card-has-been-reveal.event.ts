@@ -18,7 +18,7 @@ export const isGoalCardHasBeenRevealEvent = (
 ): event is GoalCardHasBeenRevealEvent =>
   GoalCardHasBeenRevealEventSchema.safeParse(event).success;
 
-export const GoalCardHasBeenRevealEvent = (data: {
+export const createGoalCardHasBeenRevealEvent = (data: {
   playerId: string;
   position: Vec2;
 }): GoalCardHasBeenRevealEvent => ({

@@ -1,10 +1,10 @@
+import { PathCard } from "@packages/domain";
 import getAvailablePositions from "./get-available-positions";
-import { PathCard } from "~/models/card";
 
 describe("get available positions", () => {
   test(`
       given:
-        an empty placement array 
+        an empty placement array
       when:
         get available positions
       then:

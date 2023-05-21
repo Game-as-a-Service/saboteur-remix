@@ -1,13 +1,16 @@
 import type { EventSource } from "~/models/event";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
-import { ActionCard, PathCard } from "~/models/card";
 import { never } from "~/utils";
-import removePathCard, { BoardCardEvent } from "./remove-path-card";
-import { PathCardHasBeenRemovedEvent } from "../event";
-import { RockfallCommand } from "../command";
+import removePathCard from "./remove-path-card";
+import {
+  Event,
+  PathCard,
+  createPathCardHasBeenPlacedEvent,
+  createPathCardHasBeenRemovedEvent,
+  createRockfallCommand,
+} from "@packages/domain";
 
 describe("remove path card", () => {
-  let source: EventSource<BoardCardEvent>;
+  let source: EventSource<Event>;
 
   beforeEach(() => {
     let store: unknown[] = [];
@@ -36,7 +39,7 @@ describe("remove path card", () => {
   `, () => {
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.START,
           position: [0, 0],
         })
@@ -44,8 +47,8 @@ describe("remove path card", () => {
       .then(() =>
         removePathCard(
           source,
-          RockfallCommand({
-            card: ActionCard.ROCKFALL,
+          createRockfallCommand({
+            card: PathCard.START,
             position: [0, 0],
           })
         )
@@ -60,7 +63,7 @@ describe("remove path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               card: PathCard.START,
               position: [0, 0],
             }),
@@ -84,7 +87,7 @@ describe("remove path card", () => {
   `, () => {
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.GOAL_GOLD,
           position: [8, 0],
         })
@@ -92,8 +95,8 @@ describe("remove path card", () => {
       .then(() =>
         removePathCard(
           source,
-          RockfallCommand({
-            card: ActionCard.ROCKFALL,
+          createRockfallCommand({
+            card: PathCard.GOAL_GOLD,
             position: [8, 0],
           })
         )
@@ -108,7 +111,7 @@ describe("remove path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               card: PathCard.GOAL_GOLD,
               position: [8, 0],
             }),
@@ -132,7 +135,7 @@ describe("remove path card", () => {
   `, () => {
     source
       .append(
-        PathCardHasBeenPlacedEvent({
+        createPathCardHasBeenPlacedEvent({
           card: PathCard.CONNECTED_CROSS,
           position: [1, 0],
         })
@@ -140,8 +143,8 @@ describe("remove path card", () => {
       .then(() =>
         removePathCard(
           source,
-          RockfallCommand({
-            card: ActionCard.ROCKFALL,
+          createRockfallCommand({
+            card: PathCard.CONNECTED_CROSS,
             position: [1, 0],
           })
         )
@@ -150,8 +153,8 @@ describe("remove path card", () => {
         result.match(
           (result) =>
             expect(result).toStrictEqual(
-              PathCardHasBeenRemovedEvent({
-                card: ActionCard.ROCKFALL,
+              createPathCardHasBeenRemovedEvent({
+                card: PathCard.CONNECTED_CROSS,
                 position: [1, 0],
               })
             ),
@@ -161,12 +164,12 @@ describe("remove path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               card: PathCard.CONNECTED_CROSS,
               position: [1, 0],
             }),
-            PathCardHasBeenRemovedEvent({
-              card: ActionCard.ROCKFALL,
+            createPathCardHasBeenRemovedEvent({
+              card: PathCard.CONNECTED_CROSS,
               position: [1, 0],
             }),
           ])
@@ -190,8 +193,8 @@ describe("remove path card", () => {
       .then(() =>
         removePathCard(
           source,
-          RockfallCommand({
-            card: ActionCard.ROCKFALL,
+          createRockfallCommand({
+            card: PathCard.START,
             position: [1, 0],
           })
         )
