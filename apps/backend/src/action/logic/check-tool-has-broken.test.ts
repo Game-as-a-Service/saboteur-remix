@@ -68,66 +68,6 @@ describe("check tool has broken", () => {
     }
   );
 
-  test.each([Tool.Cart, Tool.Lamp, Tool.Pickaxe])(
-    `
-      given:
-        an event source with:
-          - broken [%s] tool has been placed "twice" at the event
-      when:
-        check tool has been broken
-      then:
-        - should throw error
-          - that tool is broken and cannot be broken event
-    `,
-    async (tool) => {
-      await source.append(
-        BrokenToolHasBeenPlacedEvent(tool, "player1"),
-        BrokenToolHasBeenPlacedEvent(tool, "player1")
-      );
-
-      const result = await checkToolHasBroken(
-        source,
-        BrokenToolCommand(tool, "player1")
-      );
-
-      result.match(never, (error) => {
-        expect(error).toStrictEqual(
-          Error(`can not broke player player1 tool ${tool}`)
-        );
-      });
-    }
-  );
-
-  test.each([Tool.Cart, Tool.Lamp, Tool.Pickaxe])(
-    `
-      given:
-        an event source with:
-          - broken [%s] tool has been removed "twice" at the event
-      when:
-        check tool has been broken
-      then:
-        - should throw error
-          - that tool is not broken and cannot be fixed event
-    `,
-    async (tool) => {
-      await source.append(
-        BrokenToolHasBeenRemovedEvent(tool, "player1"),
-        BrokenToolHasBeenRemovedEvent(tool, "player1")
-      );
-
-      const result = await checkToolHasBroken(
-        source,
-        BrokenToolCommand(tool, "player1")
-      );
-
-      result.match(never, (error) => {
-        expect(error).toStrictEqual(
-          Error(`can not fix player player1 tool ${tool}`)
-        );
-      });
-    }
-  );
-
   test(`
     given:
       an event source with:

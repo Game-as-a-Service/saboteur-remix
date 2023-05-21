@@ -3,10 +3,3 @@ export enum Tool {
   Lamp = "Lamp",
   Pickaxe = "Pickaxe",
 }
-
-export enum ToolState {
-  Broken = "broken",
-  NotBroken = "not broken",
-}
-
-export type PlayerToolState = Record<Tool, ToolState>;
