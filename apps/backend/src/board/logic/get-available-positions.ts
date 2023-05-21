@@ -1,12 +1,9 @@
-import type { Placement } from "~/models/placement";
 import * as Option from "fp-ts/Option";
 import * as Arr from "fp-ts/Array";
 import * as Pred from "fp-ts/Predicate";
 import { flow, pipe } from "fp-ts/lib/function";
 import { always, prop } from "~/utils";
-import * as Vec from "~/models/vec";
-import { PathCard } from "~/models/card";
-import { Direction } from "~/models/direction";
+import { Direction, PathCard, Placement, Vec } from "@packages/domain";
 
 export type Position = Vec.Vec2;
 type Rule = {

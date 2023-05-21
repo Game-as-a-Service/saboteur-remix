@@ -1,10 +1,8 @@
-import type { Placement } from "~/models/placement";
-import type { PlacePathCardCommand } from "~/board/command";
 import { Result, err, ok } from "neverthrow";
 import { prop, error, always } from "~/utils";
 import { flow, pipe } from "fp-ts/lib/function";
-import * as Vec from "~/models/vec";
 import * as Either from "fp-ts/Either";
+import { PlacePathCardCommand, Placement, Vec } from "@packages/domain";
 
 const PositionHasBeenPlacedError = error("PositionHasBeenPlacedError");
 export type PositionHasBeenPlacedError = ReturnType<

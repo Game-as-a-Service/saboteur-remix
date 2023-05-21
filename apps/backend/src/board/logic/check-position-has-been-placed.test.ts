@@ -1,7 +1,6 @@
-import { PathCard } from "~/models/card";
 import { never } from "~/utils";
-import { PlacePathCardCommand } from "~/board/command";
 import checkPositionHasBeenPlaced from "./check-position-has-been-placed";
+import { PathCard, createPlacePathCardCommand } from "@packages/domain";
 
 describe("check positions has been placed", () => {
   test(`
@@ -14,7 +13,7 @@ describe("check positions has been placed", () => {
     `, () =>
     Promise.resolve(
       checkPositionHasBeenPlaced([])(
-        PlacePathCardCommand({
+        createPlacePathCardCommand({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
         })
@@ -23,7 +22,7 @@ describe("check positions has been placed", () => {
       result.match(
         (command) =>
           expect(command).toStrictEqual(
-            PlacePathCardCommand({
+            createPlacePathCardCommand({
               card: PathCard.CONNECTED_CROSS,
               position: [0, 0],
             })
@@ -49,7 +48,7 @@ describe("check positions has been placed", () => {
           position: [0, 0],
         },
       ])(
-        PlacePathCardCommand({
+        createPlacePathCardCommand({
           card: PathCard.CONNECTED_CROSS,
           position: [0, 0],
         })

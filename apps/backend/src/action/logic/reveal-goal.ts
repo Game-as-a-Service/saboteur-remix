@@ -1,7 +1,10 @@
+import {
+  BrokenToolHasBeenRemovedEvent,
+  Event,
+  MapCommand,
+} from "@packages/domain";
 import { ResultAsync, errAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
-import { MapCommand } from "~/action/command";
-import { BrokenToolHasBeenRemovedEvent, Event } from "~/action/event";
 
 export interface RevealGoal {
   (source: EventSource<Event>, command: MapCommand): ResultAsync<

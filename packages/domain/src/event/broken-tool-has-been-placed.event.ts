@@ -18,7 +18,7 @@ export const isBrokenToolHasBeenPlacedEvent = (
 ): event is BrokenToolHasBeenPlacedEvent =>
   BrokenToolHasBeenPlacedEventSchema.safeParse(event).success;
 
-export const BrokenToolHasBeenPlacedEvent = (data: {
+export const createBrokenToolHasBeenPlacedEvent = (data: {
   tool: Tool;
   playerId: string;
 }): BrokenToolHasBeenPlacedEvent => ({

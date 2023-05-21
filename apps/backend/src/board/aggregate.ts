@@ -1,15 +1,18 @@
 import type { EventSource } from "~/models/event";
-import type { BoardEvent } from "~/board/event";
-import { match } from "ts-pattern";
 import placePathCard from "~/board/logic/place-path-card";
 import { identity, throws } from "~/utils";
-import { PlacePathCardCommand, isPlacePathCardCommand } from "~/board/command";
+import { match } from "ts-pattern";
+import {
+  PlacePathCardCommand,
+  Event,
+  isPlacePathCardCommand,
+} from "@packages/domain";
 
 interface Aggregate {
-  (command: PlacePathCardCommand): Promise<BoardEvent>;
+  (command: PlacePathCardCommand): Promise<Event>;
 }
 export const aggregate =
-  (repository: EventSource<BoardEvent>): Aggregate =>
+  (repository: EventSource<Event>): Aggregate =>
   (command) =>
     match(command)
       .when(isPlacePathCardCommand, (command) =>

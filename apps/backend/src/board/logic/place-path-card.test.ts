@@ -1,8 +1,11 @@
 import type { EventSource } from "~/models/event";
-import { PlacePathCardCommand } from "~/board/command";
-import { PathCard } from "~/models/card";
 import placePathCard from "~/board/logic/place-path-card";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
+import {
+  PathCard,
+  PathCardHasBeenPlacedEvent,
+  createPathCardHasBeenPlacedEvent,
+  createPlacePathCardCommand,
+} from "@packages/domain";
 import { never } from "~/utils";
 
 describe("place path card", () => {
@@ -36,7 +39,7 @@ describe("place path card", () => {
     `, async () =>
     placePathCard(
       source,
-      PlacePathCardCommand({
+      createPlacePathCardCommand({
         position: [0, 0],
         card: PathCard.START,
       })
@@ -45,7 +48,7 @@ describe("place path card", () => {
         result.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
               })
@@ -56,7 +59,7 @@ describe("place path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               position: [0, 0],
               card: PathCard.START,
             }),
@@ -91,7 +94,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, 0],
             card: PathCard.START,
           })
@@ -101,7 +104,7 @@ describe("place path card", () => {
         event.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
               })
@@ -112,7 +115,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [8, 0],
             card: PathCard.GOAL_COAL_BOTTOM_LEFT,
           })
@@ -122,7 +125,7 @@ describe("place path card", () => {
         event.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [8, 0],
                 card: PathCard.GOAL_COAL_BOTTOM_LEFT,
               })
@@ -133,7 +136,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [8, 2],
             card: PathCard.GOAL_GOLD,
           })
@@ -143,7 +146,7 @@ describe("place path card", () => {
         event.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [8, 2],
                 card: PathCard.GOAL_GOLD,
               })
@@ -154,7 +157,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [8, -2],
             card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
           })
@@ -164,7 +167,7 @@ describe("place path card", () => {
         event.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [8, -2],
                 card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
               })
@@ -175,19 +178,19 @@ describe("place path card", () => {
       .then(() =>
         source.read().then((events) =>
           expect(events).toStrictEqual([
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               position: [0, 0],
               card: PathCard.START,
             }),
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               position: [8, 0],
               card: PathCard.GOAL_COAL_BOTTOM_LEFT,
             }),
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               position: [8, 2],
               card: PathCard.GOAL_GOLD,
             }),
-            PathCardHasBeenPlacedEvent({
+            createPathCardHasBeenPlacedEvent({
               position: [8, -2],
               card: PathCard.GOAL_COAL_BOTTOM_RIGHT,
             }),
@@ -209,7 +212,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, 0],
             card: PathCard.START,
           })
@@ -218,7 +221,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, 0],
             card: PathCard.CONNECTED_CROSS,
           })
@@ -249,19 +252,19 @@ describe("place path card", () => {
     Promise.resolve()
       .then(() => {
         source.append(
-          PathCardHasBeenPlacedEvent({
+          createPathCardHasBeenPlacedEvent({
             position: [0, 0],
             card: PathCard.START,
           })
         );
         source.append(
-          PathCardHasBeenPlacedEvent({
+          createPathCardHasBeenPlacedEvent({
             position: [0, 1],
             card: PathCard.CONNECTED_BOTTOM_RIGHT,
           })
         );
         source.append(
-          PathCardHasBeenPlacedEvent({
+          createPathCardHasBeenPlacedEvent({
             position: [1, 1],
             card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
           })
@@ -270,7 +273,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [1, 0],
             card: PathCard.CONNECTED_BOTTOM_RIGHT,
           })
@@ -300,13 +303,13 @@ describe("place path card", () => {
     Promise.resolve()
       .then(() => {
         source.append(
-          PathCardHasBeenPlacedEvent({
+          createPathCardHasBeenPlacedEvent({
             position: [0, 0],
             card: PathCard.START,
           })
         );
         source.append(
-          PathCardHasBeenPlacedEvent({
+          createPathCardHasBeenPlacedEvent({
             position: [1, 0],
             card: PathCard.CONNECTED_BOTTOM_LEFT,
           })
@@ -315,7 +318,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [2, 0],
             card: PathCard.CONNECTED_LEFT_RIGHT,
           })
@@ -347,7 +350,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, 0],
             card: PathCard.START,
           })
@@ -356,7 +359,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, -1],
             card: PathCard.DEADEND_TOP_LEFT_RIGHT,
           })
@@ -365,7 +368,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [1, -1],
             card: PathCard.DEADEND_LEFT_RIGHT,
           })
@@ -401,7 +404,7 @@ describe("place path card", () => {
           `, async () =>
     placePathCard(
       source,
-      PlacePathCardCommand({
+      createPlacePathCardCommand({
         position: [0, 0],
         card: PathCard.START,
       })
@@ -410,7 +413,7 @@ describe("place path card", () => {
         result.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
               })
@@ -421,7 +424,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [1, 0],
             card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
           })
@@ -430,7 +433,7 @@ describe("place path card", () => {
             result.match(
               (event) =>
                 expect(event).toStrictEqual(
-                  PathCardHasBeenPlacedEvent({
+                  createPathCardHasBeenPlacedEvent({
                     position: [1, 0],
                     card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
                   })
@@ -441,7 +444,7 @@ describe("place path card", () => {
           .then(() =>
             placePathCard(
               source,
-              PlacePathCardCommand({
+              createPlacePathCardCommand({
                 position: [2, 0],
                 card: PathCard.CONNECTED_BOTTOM_LEFT,
               })
@@ -451,7 +454,7 @@ describe("place path card", () => {
             result.match(
               (event) =>
                 expect(event).toStrictEqual(
-                  PathCardHasBeenPlacedEvent({
+                  createPathCardHasBeenPlacedEvent({
                     position: [2, 0],
                     card: PathCard.CONNECTED_BOTTOM_LEFT,
                   })
@@ -462,15 +465,15 @@ describe("place path card", () => {
           .then(() =>
             source.read().then((events) =>
               expect(events).toStrictEqual([
-                PathCardHasBeenPlacedEvent({
+                createPathCardHasBeenPlacedEvent({
                   position: [0, 0],
                   card: PathCard.START,
                 }),
-                PathCardHasBeenPlacedEvent({
+                createPathCardHasBeenPlacedEvent({
                   position: [1, 0],
                   card: PathCard.CONNECTED_TOP_LEFT_RIGHT,
                 }),
-                PathCardHasBeenPlacedEvent({
+                createPathCardHasBeenPlacedEvent({
                   position: [2, 0],
                   card: PathCard.CONNECTED_BOTTOM_LEFT,
                 }),
@@ -496,7 +499,7 @@ describe("place path card", () => {
   `, async () =>
     placePathCard(
       source,
-      PlacePathCardCommand({
+      createPlacePathCardCommand({
         position: [0, 0],
         card: PathCard.START,
       })
@@ -505,7 +508,7 @@ describe("place path card", () => {
         result.match(
           (event) =>
             expect(event).toStrictEqual(
-              PathCardHasBeenPlacedEvent({
+              createPathCardHasBeenPlacedEvent({
                 position: [0, 0],
                 card: PathCard.START,
               })
@@ -516,7 +519,7 @@ describe("place path card", () => {
       .then(() =>
         placePathCard(
           source,
-          PlacePathCardCommand({
+          createPlacePathCardCommand({
             position: [0, 1],
             card: PathCard.CONNECTED_CROSS,
           })
@@ -525,7 +528,7 @@ describe("place path card", () => {
             result.match(
               (event) =>
                 expect(event).toStrictEqual(
-                  PathCardHasBeenPlacedEvent({
+                  createPathCardHasBeenPlacedEvent({
                     position: [0, 1],
                     card: PathCard.CONNECTED_CROSS,
                   })
@@ -536,11 +539,11 @@ describe("place path card", () => {
           .then(() =>
             source.read().then((events) =>
               expect(events).toStrictEqual([
-                PathCardHasBeenPlacedEvent({
+                createPathCardHasBeenPlacedEvent({
                   position: [0, 0],
                   card: PathCard.START,
                 }),
-                PathCardHasBeenPlacedEvent({
+                createPathCardHasBeenPlacedEvent({
                   position: [0, 1],
                   card: PathCard.CONNECTED_CROSS,
                 }),

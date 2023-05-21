@@ -1,14 +1,18 @@
 import type { EventSource } from "~/models/event";
-import type { PlacePathCardCommand } from "~/board/command";
 import type { PositionHasBeenPlacedError } from "./check-position-has-been-placed";
 import type { GetCurrentPlacementsError } from "./get-current-placements";
 import type { PlacementCannotConnectedError } from "./check-positions-is-connected";
-import { PathCardHasBeenPlacedEvent } from "~/board/event";
 import getCurrentPlacements from "./get-current-placements";
 import checkPositionHasBeenPlaced from "./check-position-has-been-placed";
 import checkPositionIsConnected from "./check-positions-is-connected";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { always, error } from "~/utils";
+import {
+  Event,
+  PathCardHasBeenPlacedEvent,
+  PlacePathCardCommand,
+  createPathCardHasBeenPlacedEvent,
+} from "@packages/domain";
 
 const EventSourceWriteError = error("EventSourceWriteError");
 export type EventSourceWriteError = ReturnType<typeof EventSourceWriteError>;
@@ -18,27 +22,18 @@ export type PlacePathCardError =
   | PlacementCannotConnectedError
   | EventSourceWriteError;
 export interface PlacePathCard {
-  (
-    source: EventSource<PathCardHasBeenPlacedEvent>,
-    command: PlacePathCardCommand
-  ): ResultAsync<PathCardHasBeenPlacedEvent, PlacePathCardError>;
+  (source: EventSource<Event>, command: PlacePathCardCommand): ResultAsync<
+    PathCardHasBeenPlacedEvent,
+    PlacePathCardError
+  >;
 }
 
 const appendEventToEventSource =
-  (source: EventSource<PathCardHasBeenPlacedEvent>) =>
-  (command: PlacePathCardCommand) =>
+  (source: EventSource<Event>) => (command: PlacePathCardCommand) =>
     ResultAsync.fromPromise(
-      source.append(PathCardHasBeenPlacedEvent(command.data)),
+      source.append(createPathCardHasBeenPlacedEvent(command.data)),
       always(EventSourceWriteError("failed to write event to repository"))
-    )
-      .map((events) => events.at(0))
-      .andThen((event) =>
-        event
-          ? okAsync(event)
-          : errAsync(
-              EventSourceWriteError("failed to write event to repository")
-            )
-      );
+    );
 
 /**
  * *description*
@@ -54,6 +49,7 @@ export const placePathCard: PlacePathCard = (source, command) =>
         .andThen(checkPositionHasBeenPlaced(board))
         .andThen(checkPositionIsConnected(board))
     )
-    .andThen(appendEventToEventSource(source));
+    .andThen(appendEventToEventSource(source))
+    .map(always(createPathCardHasBeenPlacedEvent(command.data)));
 
 export default placePathCard;

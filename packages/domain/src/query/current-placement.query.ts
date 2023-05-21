@@ -8,7 +8,7 @@ export type CurrentPlacementQuery = Readonly<
   z.infer<typeof CurrentPlacementQuerySchema>
 >;
 
-export const CurrentPlacementQuery = (): CurrentPlacementQuery => ({
+export const createCurrentPlacementQuery = (): CurrentPlacementQuery => ({
   type: "current placement query",
 });
 

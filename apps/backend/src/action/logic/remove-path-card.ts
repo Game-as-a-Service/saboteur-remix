@@ -1,19 +1,20 @@
 import { ResultAsync, ok, err } from "neverthrow";
 import { EventSource } from "~/models/event";
-import { RockfallCommand } from "~/action/command";
-import { PathCardHasBeenRemovedEvent } from "~/action/event";
-import type { BoardEvent } from "~/board/event";
 import type { GetCurrentPlacementsError } from "~/board/logic/get-current-placements";
 import getCurrentPlacements from "~/board/logic/get-current-placements";
-import { Placement } from "~/models/placement";
 import { flow, pipe } from "fp-ts/lib/function";
 import { prop, error, always } from "~/utils";
-import { PathCard } from "~/models/card";
-import * as Vec from "~/models/vec";
 import * as Array from "fp-ts/Array";
 import * as Either from "fp-ts/Either";
-
-export type BoardCardEvent = BoardEvent | PathCardHasBeenRemovedEvent;
+import {
+  Event,
+  PathCard,
+  PathCardHasBeenRemovedEvent,
+  Placement,
+  RockfallCommand,
+  Vec,
+  createPathCardHasBeenRemovedEvent,
+} from "@packages/domain";
 
 const TargetCannotBeRemovedError = error("TargetCannotBeRemovedError");
 const RepositoryWriteError = error("RepositoryWriteError");
@@ -27,7 +28,7 @@ export type RemovePathCardError =
   | GetCurrentPlacementsError;
 
 export interface RemovePathCard {
-  (source: EventSource<BoardCardEvent>, command: RockfallCommand): ResultAsync<
+  (source: EventSource<Event>, command: RockfallCommand): ResultAsync<
     PathCardHasBeenRemovedEvent,
     RemovePathCardError
   >;
@@ -69,9 +70,9 @@ const checkPathCardHasBeenPlaced =
     );
 
 const appendEventToEventSource =
-  (source: EventSource<BoardCardEvent>, command: RockfallCommand) => () =>
+  (source: EventSource<Event>, command: RockfallCommand) => () =>
     pipe(
-      PathCardHasBeenRemovedEvent(command.data),
+      createPathCardHasBeenRemovedEvent(command.data),
       (event) =>
         ResultAsync.fromPromise(
           source.append(event),
@@ -89,7 +90,7 @@ const appendEventToEventSource =
  */
 
 export const removePathCard: RemovePathCard = (source, command) =>
-  getCurrentPlacements(source as EventSource<BoardEvent>)
+  getCurrentPlacements(source)
     .andThen(checkPathCardHasBeenPlaced(command))
     .andThen(appendEventToEventSource(source, command));
 

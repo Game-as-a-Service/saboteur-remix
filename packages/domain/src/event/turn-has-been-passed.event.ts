@@ -19,8 +19,8 @@ export const isTurnHasBeenPassedEvent = (
 ): event is TurnHasBeenPassedEvent =>
   TurnHasBeenPassedEventSchema.safeParse(event).success;
 
-export const TurnHasBeenPassedEvent = (
-  card?: PathCard
+export const createTurnHasBeenPassedEvent = (
+  card?: PathCard | ActionCard
 ): TurnHasBeenPassedEvent => ({
   type: "turn has been passed",
   data: { card },

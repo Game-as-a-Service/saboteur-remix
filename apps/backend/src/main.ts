@@ -1,41 +1,38 @@
-import AppModule from "~/app.module";
-import { NestFactory } from "@nestjs/core";
-import { Logger } from "@nestjs/common";
 import env from "~/env";
-import createRedisStreamsAdapter from "~/io/redis-streams-adapter";
-import redis from "~/io/redis";
+import logger from "~/logger";
+import gateway from "~/gateway";
+import fastify from "fastify";
+import fastifyIO from "fastify-socket.io";
+import cors from "@fastify/cors";
 
-async function bootstrap() {
-  const logger = new Logger("Main (main.ts)");
-  const app = await NestFactory.create(AppModule);
+const log = logger({ tag: `main` });
+const server = fastify();
 
-  app.enableCors({
-    origin: [
-      ...(env.CLIENT_PORT
-        ? [
-            `http://localhost:${env.CLIENT_PORT}`,
-            // to match http://192.168.1.(\d):PORT
-            RegExp(
-              `/^http:\/\/192\.168\.1\.([1-9][1-9]\d):${env.CLIENT_PORT}$/`
-            ),
-          ]
-        : []),
-      ...env.CORS_ORIGIN,
-    ],
-  });
+// support cors
+server.register(cors, {
+  origin: [
+    ...(env.CLIENT_PORT
+      ? [
+          `http://localhost:${env.CLIENT_PORT}`,
+          // to match http://192.168.1.(\d):PORT
+          RegExp(`/^http:\/\/192\.168\.1\.([1-9][1-9]\d):${env.CLIENT_PORT}$/`),
+        ]
+      : []),
+    ...env.CORS_ORIGIN,
+  ],
+});
 
-  app.useWebSocketAdapter(
-    createRedisStreamsAdapter(app, await redis(env.REDIS_URL), {
-      //@todo: production should be 30_000
-      heartbeatInterval: ~(1 << 31), // maximum to 32-bit signed integer
-    })
-  );
+// health check
+server.get("/health", (_, res) => res.send("ok"));
 
-  app.enableShutdownHooks();
+// support socket.io
+server.register(fastifyIO);
+server.ready().then(() => {
+  server.io.on("connection", gateway);
+});
 
-  await app.listen(env.PORT);
-  logger.log(
-    `started server on 0.0.0.0:${env.PORT}, url: http://localhost:${env.PORT}`
-  );
-}
-bootstrap();
+server.listen({ port: env.PORT, host: "0.0.0.0" }, () =>
+  log.info(
+    `started server on 0.0.0.0:${env.PORT}, ul: http://localhost:${env.PORT}`
+  )
+);

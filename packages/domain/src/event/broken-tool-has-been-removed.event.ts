@@ -18,7 +18,7 @@ export const isBrokenToolHasBeenRemovedEvent = (
 ): event is BrokenToolHasBeenRemovedEvent =>
   BrokenToolHasBeenRemovedEventSchema.safeParse(event).success;
 
-export const BrokenToolHasBeenRemovedEvent = (data: {
+export const createBrokenToolHasBeenRemovedEvent = (data: {
   playerId: string;
   tool: Tool;
 }): BrokenToolHasBeenRemovedEvent => ({

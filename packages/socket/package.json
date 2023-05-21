@@ -12,15 +12,18 @@
   "dependencies": {
     "@packages/domain": "*",
     "@packages/utils": "*",
+    "ramda": "^0.29.0",
+    "socket.io-client": "^4.6.1",
+    "ts-pattern": "^4.3.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "typescript": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.40.0",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1"
+    "eslint-plugin-prettier": "^4.2.1",
+    "typescript": "^5.0.4"
   },
   "prettier": {},
   "eslintIgnore": [
