@@ -1,6 +1,5 @@
-import { ResultAsync, err, ok } from "neverthrow";
-import { flow, pipe } from "fp-ts/lib/function";
-import { reduce, filter } from "fp-ts/lib/Array";
+import { ResultAsync } from "neverthrow";
+import { pipe } from "fp-ts/lib/function";
 import { match } from "ts-pattern";
 import { elem } from "fp-ts/Record";
 import { Eq as stringEq } from "fp-ts/string";
@@ -16,27 +15,15 @@ import { PlayerToolState, Tool, ToolState } from "~/models/tool";
 import { always, assoc, error } from "~/utils";
 
 const EventSourceReadError = error("EventSourceReadError");
-const ToolHasBeenBrokenError = error("ToolHasBeenBrokenError");
-const ToolHasNotBeenBrokenError = error("ToolHasNotBeenBrokenError");
 
 type EventSourceReadError = ReturnType<typeof EventSourceReadError>;
-type ToolHasBeenBrokenError = ReturnType<typeof ToolHasBeenBrokenError>;
-type ToolHasNotBeenBrokenError = ReturnType<typeof ToolHasNotBeenBrokenError>;
 
-export type CheckToolHasBrokenError =
-  | EventSourceReadError
-  | ToolHasBeenBrokenError
-  | ToolHasNotBeenBrokenError;
-
-type PlayerToolStateOrError = E.Either<
-  CheckToolHasBrokenError,
-  PlayerToolState
->;
+export type CheckToolHasBrokenError = EventSourceReadError;
 
 export interface CheckToolHasBroken {
   (repository: EventSource<Event>, command: BrokenToolCommand): ResultAsync<
     boolean,
-    EventSourceReadError
+    CheckToolHasBrokenError
   >;
 }
 
@@ -118,8 +105,6 @@ const aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer = (
 export const checkToolHasBroken: CheckToolHasBroken = (source, command) =>
   readAllEventsFromEventSource(source)
     .map(aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer(command))
-    .andThen((result) =>
-      result.map((state) => elem(stringEq)(ToolState.Broken, state))
-    );
+    .map((result) => result.length > 0);
 
 export default checkToolHasBroken;
