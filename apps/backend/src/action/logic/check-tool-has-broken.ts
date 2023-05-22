@@ -1,5 +1,5 @@
-import { ResultAsync } from "neverthrow";
-import { pipe } from "fp-ts/lib/function";
+import { ResultAsync, err, ok, okAsync } from "neverthrow";
+import { flow, pipe } from "fp-ts/lib/function";
 import { match } from "ts-pattern";
 import { elem } from "fp-ts/Record";
 import { Eq as stringEq } from "fp-ts/string";
@@ -105,6 +105,18 @@ const aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer = (
 export const checkToolHasBroken: CheckToolHasBroken = (source, command) =>
   readAllEventsFromEventSource(source)
     .map(aggregateAllEventsToGetToolsHasBeenBrokenOnPlayer(command))
-    .map((result) => result.length > 0);
+    .andThen(
+      flow(
+        E.fromPredicate(
+          (brokenTools) => brokenTools.length > 0,
+          always(
+            ToolHasBeenBrokenError(
+              `the player ${command.data.playerId} tool has been broken`
+            )
+          )
+        ),
+        E.matchW(err, always(ok(command)))
+      )
+    );
 
 export default checkToolHasBroken;

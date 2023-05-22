@@ -32,8 +32,8 @@ describe("check tool has broken", () => {
       when:
         check tool has been broken
       then:
-        - should return true
-          - the tool has been broken
+        - should return error
+          - the player player1 tool has been broken
     `,
     async (tool) => {
       await source.append(BrokenToolHasBeenPlacedEvent(tool, "player1"));
@@ -43,7 +43,11 @@ describe("check tool has broken", () => {
         BrokenToolCommand(tool, "player1")
       );
 
-      result.match((isSuccess) => expect(isSuccess).toBe(true), never);
+      result.match(never, (error) =>
+        expect(error).toStrictEqual(
+          Error("the player player1 tool has been broken")
+        )
+      );
     }
   );
 
@@ -55,16 +59,14 @@ describe("check tool has broken", () => {
       when:
         check tool has been broken
       then:
-        - should return false
-          - the tool has not been broken
+        - should return BrokenToolCommand
     `,
     async (tool) => {
-      const result = await checkToolHasBroken(
-        source,
-        BrokenToolCommand(tool, "player1")
-      );
+      const brokenToolCommand = BrokenToolCommand(tool, "player1");
 
-      result.match((isSuccess) => expect(isSuccess).toBe(false), never);
+      const result = await checkToolHasBroken(source, brokenToolCommand);
+
+      result.match((command) => expect(command).toBe(brokenToolCommand), never);
     }
   );
 
@@ -77,8 +79,8 @@ describe("check tool has broken", () => {
       when:
         check tool has been broken
       then:
-        - should return true
-          - the tool has been broken
+        - should return error
+          - the player player1 tool has been broken
   `, async () => {
     await source.append(
       BrokenToolHasBeenPlacedEvent(Tool.Cart, "player1"),
@@ -91,7 +93,11 @@ describe("check tool has broken", () => {
       BrokenToolCommand(Tool.Cart, "player1")
     );
 
-    result.match((isSuccess) => expect(isSuccess).toBe(true), never);
+    result.match(never, (error) =>
+      expect(error).toStrictEqual(
+        Error("the player player1 tool has been broken")
+      )
+    );
   });
 
   test(`
@@ -106,8 +112,7 @@ describe("check tool has broken", () => {
       when:
         check tool has been broken
       then:
-        - should return false
-          - the tool has not been broken
+        - should return BrokenToolCommand
   `, async () => {
     await source.append(
       BrokenToolHasBeenPlacedEvent(Tool.Cart, "player1"),
@@ -118,11 +123,10 @@ describe("check tool has broken", () => {
       BrokenToolHasBeenRemovedEvent(Tool.Pickaxe, "player1")
     );
 
-    const result = await checkToolHasBroken(
-      source,
-      BrokenToolCommand(Tool.Cart, "player1")
-    );
+    const brokenToolCommand = BrokenToolCommand(Tool.Cart, "player1");
 
-    result.match((isSuccess) => expect(isSuccess).toBe(false), never);
+    const result = await checkToolHasBroken(source, brokenToolCommand);
+
+    result.match((command) => expect(command).toBe(brokenToolCommand), never);
   });
 });
