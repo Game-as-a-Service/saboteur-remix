@@ -1,13 +1,13 @@
-import type { EventSource } from "~/models/event";
 import {
-  BrokenToolHasBeenPlacedEvent,
-  BrokenToolHasBeenRemovedEvent,
+  createBrokenToolCommand,
+  createBrokenToolHasBeenPlacedEvent,
+  createBrokenToolHasBeenRemovedEvent,
   Event,
-} from "../event";
-import { Tool } from "~/models/tool";
+  Tool,
+} from "@packages/domain";
+import type { EventSource } from "~/models/event";
 import checkToolHasBroken from "./check-tool-has-broken";
 import { never } from "~/utils";
-import { BrokenToolCommand } from "../command";
 
 describe("check tool has broken", () => {
   let source: EventSource<Event>;
@@ -36,11 +36,13 @@ describe("check tool has broken", () => {
           - the player player1 tool has been broken
     `,
     async (tool) => {
-      await source.append(BrokenToolHasBeenPlacedEvent(tool, "player1"));
+      await source.append(
+        createBrokenToolHasBeenPlacedEvent({ tool, playerId: "player1" })
+      );
 
       const result = await checkToolHasBroken(
         source,
-        BrokenToolCommand(tool, "player1")
+        createBrokenToolCommand({ tool, playerId: "player1" })
       );
 
       result.match(never, (error) =>
@@ -62,7 +64,10 @@ describe("check tool has broken", () => {
         - should return BrokenToolCommand
     `,
     async (tool) => {
-      const brokenToolCommand = BrokenToolCommand(tool, "player1");
+      const brokenToolCommand = createBrokenToolCommand({
+        tool,
+        playerId: "player1",
+      });
 
       const result = await checkToolHasBroken(source, brokenToolCommand);
 
@@ -83,14 +88,23 @@ describe("check tool has broken", () => {
           - the player player1 tool has been broken
   `, async () => {
     await source.append(
-      BrokenToolHasBeenPlacedEvent(Tool.Cart, "player1"),
-      BrokenToolHasBeenRemovedEvent(Tool.Cart, "player1"),
-      BrokenToolHasBeenPlacedEvent(Tool.Cart, "player1")
+      createBrokenToolHasBeenPlacedEvent({
+        tool: Tool.Cart,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenRemovedEvent({
+        tool: Tool.Cart,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenPlacedEvent({
+        tool: Tool.Cart,
+        playerId: "player1",
+      })
     );
 
     const result = await checkToolHasBroken(
       source,
-      BrokenToolCommand(Tool.Cart, "player1")
+      createBrokenToolCommand({ tool: Tool.Cart, playerId: "player1" })
     );
 
     result.match(never, (error) =>
@@ -115,15 +129,36 @@ describe("check tool has broken", () => {
         - should return BrokenToolCommand
   `, async () => {
     await source.append(
-      BrokenToolHasBeenPlacedEvent(Tool.Cart, "player1"),
-      BrokenToolHasBeenPlacedEvent(Tool.Lamp, "player1"),
-      BrokenToolHasBeenPlacedEvent(Tool.Pickaxe, "player1"),
-      BrokenToolHasBeenRemovedEvent(Tool.Cart, "player1"),
-      BrokenToolHasBeenRemovedEvent(Tool.Lamp, "player1"),
-      BrokenToolHasBeenRemovedEvent(Tool.Pickaxe, "player1")
+      createBrokenToolHasBeenPlacedEvent({
+        tool: Tool.Cart,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenPlacedEvent({
+        tool: Tool.Lamp,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenPlacedEvent({
+        tool: Tool.Pickaxe,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenRemovedEvent({
+        tool: Tool.Cart,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenRemovedEvent({
+        tool: Tool.Lamp,
+        playerId: "player1",
+      }),
+      createBrokenToolHasBeenRemovedEvent({
+        tool: Tool.Pickaxe,
+        playerId: "player1",
+      })
     );
 
-    const brokenToolCommand = BrokenToolCommand(Tool.Cart, "player1");
+    const brokenToolCommand = createBrokenToolCommand({
+      tool: Tool.Cart,
+      playerId: "player1",
+    });
 
     const result = await checkToolHasBroken(source, brokenToolCommand);
 
