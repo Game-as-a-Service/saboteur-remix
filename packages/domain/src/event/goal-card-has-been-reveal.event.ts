@@ -1,11 +1,11 @@
 import z from "zod";
-import { Vec2, Vec2Schema } from "../models/vec2";
+import { Placement, PlacementSchema } from "../models";
 
 export const GoalCardHasBeenRevealEventSchema = z.object({
   type: z.literal("goal card has been reveal"),
   data: z.object({
     playerId: z.string(),
-    position: Vec2Schema,
+    placement: PlacementSchema,
   }),
 });
 
@@ -20,7 +20,7 @@ export const isGoalCardHasBeenRevealEvent = (
 
 export const createGoalCardHasBeenRevealEvent = (data: {
   playerId: string;
-  position: Vec2;
+  placement: Placement;
 }): GoalCardHasBeenRevealEvent => ({
   type: "goal card has been reveal",
   data,
