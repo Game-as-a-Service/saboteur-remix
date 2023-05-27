@@ -93,7 +93,7 @@ describe("place broken tool", () => {
       .then((result) =>
         result.match(never, (error) =>
           expect(error).toStrictEqual(
-            Error(`the player player-a tool has been broken`)
+            Error(`player:player-a tool:2 already broken`)
           )
         )
       ));

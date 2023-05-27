@@ -4,24 +4,24 @@ import {
   Event,
   createBrokenToolHasBeenPlacedEvent,
 } from "@packages/domain";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, errAsync } from "neverthrow";
 import { EventSource } from "~/models/event";
 import getToolsHasBrokenOnPlayer, {
   EventSourceReadError,
 } from "./get-tools-has-broken-on-player";
-import checkToolHasBroken, {
-  CheckToolHasBrokenError,
-} from "./check-tool-has-broken";
 import { pipe } from "fp-ts/lib/function";
 import { always, error } from "~/utils";
 
 const EventSourceWriteError = error("EventSourceWriteError");
 type EventSourceWriteError = ReturnType<typeof EventSourceWriteError>;
 
+const ToolHasBeenBrokenError = error("ToolHasBeenBrokenError");
+type ToolHasBeenBrokenError = ReturnType<typeof ToolHasBeenBrokenError>;
+
 type PlaceBrokenToolError =
   | EventSourceReadError
   | EventSourceWriteError
-  | CheckToolHasBrokenError;
+  | ToolHasBeenBrokenError;
 
 export interface PlaceBrokenTool {
   (source: EventSource<Event>, command: BrokenToolCommand): ResultAsync<
@@ -30,14 +30,16 @@ export interface PlaceBrokenTool {
   >;
 }
 
-const appendEventToEventSource =
-  (source: EventSource<Event>, command: BrokenToolCommand) => () =>
-    pipe(createBrokenToolHasBeenPlacedEvent(command.data), (event) =>
-      ResultAsync.fromPromise(
-        source.append(event),
-        always(EventSourceWriteError("failed to write event to repository"))
-      )
-    );
+const appendEventToEventSource = (
+  source: EventSource<Event>,
+  command: BrokenToolCommand
+) =>
+  pipe(createBrokenToolHasBeenPlacedEvent(command.data), (event) =>
+    ResultAsync.fromPromise(
+      source.append(event),
+      always(EventSourceWriteError("failed to write event to repository"))
+    )
+  );
 
 /**
  * *description*
@@ -48,8 +50,15 @@ const appendEventToEventSource =
  */
 export const placeBrokenTool: PlaceBrokenTool = (source, command) =>
   getToolsHasBrokenOnPlayer(source, command.data.playerId)
-    .andThen(checkToolHasBroken(command))
-    .andThen(appendEventToEventSource(source, command))
+    .andThen((toolsHasBroken) =>
+      !toolsHasBroken.includes(command.data.tool)
+        ? appendEventToEventSource(source, command)
+        : errAsync(
+            ToolHasBeenBrokenError(
+              `player:${command.data.playerId} tool:${command.data.tool} already broken`
+            )
+          )
+    )
     .map(always(createBrokenToolHasBeenPlacedEvent(command.data)));
 
 export default placeBrokenTool;
