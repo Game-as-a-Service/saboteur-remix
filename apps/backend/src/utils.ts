@@ -1,3 +1,5 @@
+import { P } from "ts-pattern";
+import { z } from "zod";
 import type { ErrorFactory } from "~/models/error";
 
 export type ValueOf<T> = T[keyof T];
@@ -73,3 +75,6 @@ export function eq(v1: number, v2?: number) {
   if (!v2) return eq_1(v1);
   return eq_2(v1, v2);
 }
+
+export const schema = <S extends z.Schema<any, any>>(schema: S) =>
+  P.when((obj: unknown): obj is z.infer<S> => schema.safeParse(obj).success);
