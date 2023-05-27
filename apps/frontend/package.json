@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@packages/socket": "*",
+    "@packages/domain": "*",
     "@reduxjs/toolkit": "^1.9.5",
     "@remix-run/css-bundle": "^1.16.0",
     "@remix-run/node": "^1.16.0",
