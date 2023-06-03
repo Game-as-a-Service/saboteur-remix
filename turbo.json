@@ -18,6 +18,9 @@
     "test": {
       "outputs": []
     },
+    "doc": {
+      "outputs": []
+    },
     "dev": {
       "cache": false
     }

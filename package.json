@@ -12,7 +12,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "format": "turbo run format"
+    "format": "turbo run format",
+    "doc": "turbo run doc"
   },
   "devDependencies": {
     "prettier": "latest",
