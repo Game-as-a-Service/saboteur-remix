@@ -1,6 +1,12 @@
-export type Card = PathCard | ActionCard | RoleCard;
-export type HandCard = PathCard | ActionCard;
+/**
+ * Card types and constants.
+ * @packageDocumentation
+ */
 
+/**
+ * `PathCard` represents the card used to build the path to the gold.
+ * @readonly
+ */
 export enum PathCard {
   START = "start",
   GOAL_GOLD = "goal gold",
@@ -26,6 +32,10 @@ export enum PathCard {
   DEADEND_LEFT = "deadend left",
 }
 
+/**
+ * `ActionCard` represents the card used to perform an action.
+ * @readonly
+ */
 export enum ActionCard {
   MAP = "map",
   ROCKFALL = "rockfall",
@@ -40,20 +50,30 @@ export enum ActionCard {
   FIX_TOOL_PICKAXE_CART = "fix tool pickaxe cart",
 }
 
-export const GoldNuggetCard = "gold" as const;
-
+/**
+ * `RoleCard` represents the card used to determine the role of the player.
+ * @readonly
+ */
 export enum RoleCard {
   GoldMiner = "gold miner",
   Saboteur = "saboteur",
 }
 
+/**
+ * `GoalCard` represents the card used to determine the goal of the player.
+ * @readonly
+ */
 export const GoalCards = Object.freeze([
   PathCard.GOAL_GOLD,
   PathCard.GOAL_COAL_BOTTOM_RIGHT,
   PathCard.GOAL_COAL_BOTTOM_LEFT,
 ]);
 
-export const CardCount = Object.freeze({
+/**
+ * `Deck` represents the number of cards in the deck.
+ * @readonly
+ */
+export const Deck = Object.freeze({
   [PathCard.START]: 1,
   [PathCard.GOAL_GOLD]: 1,
   [PathCard.GOAL_COAL_BOTTOM_RIGHT]: 1,
@@ -86,9 +106,13 @@ export const CardCount = Object.freeze({
   [ActionCard.FIX_TOOL_LAMP_CART]: 1,
   [ActionCard.FIX_TOOL_PICKAXE_LAMP]: 1,
   [ActionCard.FIX_TOOL_PICKAXE_CART]: 1,
-
-  [GoldNuggetCard]: 28,
-
-  [RoleCard.GoldMiner]: 7,
-  [RoleCard.Saboteur]: 4,
 });
+
+/**
+ * `Card` represents the card used in the game.
+ */
+export type Card = PathCard | ActionCard | RoleCard;
+/**
+ * `HandCard` represents the card used in the hand.
+ */
+export type HandCard = PathCard | ActionCard;

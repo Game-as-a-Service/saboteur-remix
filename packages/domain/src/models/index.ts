@@ -1,4 +1,5 @@
 export * from "./card";
+export * as Card from "./card";
 export * from "./direction";
 export * from "./placement";
 export * from "./removal";
