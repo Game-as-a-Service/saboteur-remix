@@ -1,7 +1,6 @@
 import type { HandCard, Placement, Tool } from "@packages/domain";
 import type { RootState } from ".";
 import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
-import store from ".";
 
 type Player = {
   id: string;
@@ -15,7 +14,7 @@ const adapter = createEntityAdapter<Player>({
   selectId: (player) => player.id,
 });
 
-export default createSlice({
+const slice = createSlice({
   name: "players",
   initialState: adapter.getInitialState(),
   reducers: {
@@ -23,9 +22,13 @@ export default createSlice({
     update: adapter.updateOne,
   },
 });
+export default slice;
+
+// actions
+export const { add, update } = slice.actions;
 
 // selectors
 const selectors = adapter.getSelectors<RootState>((state) => state.players);
-export const selectPlayers = () => selectors.selectAll(store.getState());
-export const selectPlayerById = (id: string) =>
-  selectors.selectById(store.getState(), id);
+export const selectPlayers = selectors.selectAll;
+export const selectPlayerById = (id: string) => (state: RootState) =>
+  selectors.selectById(state, id);

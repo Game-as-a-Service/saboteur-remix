@@ -1,11 +1,10 @@
-import type { Placement, Vec2 } from "@packages/domain";
-import type { RootState } from ".";
+import type { Placement } from "@packages/domain";
+import { Vec } from "@packages/domain";
 import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
-import store from ".";
+import type { RootState } from ".";
 
-const hash = (position: Vec2) => position.join(",");
 const adapter = createEntityAdapter<Placement>({
-  selectId: (placement) => hash(placement.position),
+  selectId: (placement) => Vec.id(placement.position),
 });
 
 export default createSlice({
@@ -21,6 +20,8 @@ export default createSlice({
 
 // selectors
 const selectors = adapter.getSelectors<RootState>((state) => state.board);
-export const selectBoard = () => selectors.selectAll(store.getState());
-export const selectBoardByPosition = (position: Vec2) =>
-  selectors.selectById(store.getState(), hash(position));
+
+export const selectBoard = selectors.selectAll;
+export const selectBoardByPosition =
+  (position: Vec.Vec2) => (state: RootState) =>
+    selectors.selectById(state, Vec.id(position));

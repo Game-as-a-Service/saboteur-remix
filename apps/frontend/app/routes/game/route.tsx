@@ -3,7 +3,7 @@ import env from "~/env.server";
 import { useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
 import { Provider } from "react-redux";
-import store from "./store";
+import { setupStore } from "./store";
 import { connectClient } from "@packages/socket";
 
 export function loader() {
@@ -37,7 +37,7 @@ export default function Route() {
   }, [data.SOCKET_URL]);
 
   return (
-    <Provider store={store}>
+    <Provider store={setupStore()}>
       <App />
     </Provider>
   );
