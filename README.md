@@ -66,7 +66,16 @@ yarn test --filter=frontend
 
 ## Development
 
+- start redis container for local testing
+
+```bash
+docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```
+> you can switch to different port if you want
+
+
 - start dev server for all applications
+> please check your `.env` before you start, if you don't known how to set the environment, please contact the team.
 
 ```bash
 yarn dev
