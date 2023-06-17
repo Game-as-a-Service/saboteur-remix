@@ -1,16 +1,18 @@
 import { json } from "@remix-run/node";
 import env from "~/env.server";
 import { useLoaderData } from "@remix-run/react";
-import { useEffect } from "react";
+import { useMemo } from "react";
 import { Provider } from "react-redux";
 import { setupStore } from "./store";
 import { connectClient } from "@packages/socket";
+import board from "./store/board.slice";
+import { useEffectOnce } from "react-use";
+import { pipe } from "ramda";
 
-export function loader() {
-  return json({
+export const loader = () =>
+  json({
     SOCKET_URL: env.SOCKET_URL,
   });
-}
 
 function App() {
   return <></>;
@@ -18,26 +20,28 @@ function App() {
 
 export default function Route() {
   const data = useLoaderData<typeof loader>();
-
-  useEffect(() => {
-    const disconnect = connectClient({
+  const store = useMemo(setupStore, []);
+  useEffectOnce(() =>
+    connectClient({
       url: data.SOCKET_URL,
-      onSchemaValidationError: console.log,
+      onSchemaValidationError: store.dispatch,
       // events
-      onPathCardHasBeenPlaced: console.log,
-      onPathCardHasBeenRemoved: console.log,
-      onTurnHasBeenPassed: console.log,
-      onBrokenToolHasBeenPlaced: console.log,
-      onBrokenToolHasBeenRemoved: console.log,
+      onPathCardHasBeenPlaced: store.dispatch,
+      onPathCardHasBeenRemoved: store.dispatch,
+      onTurnHasBeenPassed: store.dispatch,
+      onBrokenToolHasBeenPlaced: store.dispatch,
+      onBrokenToolHasBeenRemoved: store.dispatch,
       // query
-      onBoardUpdated: console.log,
-    });
-
-    return disconnect;
-  }, [data.SOCKET_URL]);
+      onBoardUpdated: pipe(
+        board.actions.reset,
+        store.dispatch
+        //
+      ),
+    })
+  );
 
   return (
-    <Provider store={setupStore()}>
+    <Provider store={store}>
       <App />
     </Provider>
   );
