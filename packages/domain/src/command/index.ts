@@ -5,3 +5,4 @@ export * from "./pass.command";
 export * from "./place-path-card.command";
 export * from "./rockfall.command";
 export * from "./create-room.command";
+export * from "./draw.command";
