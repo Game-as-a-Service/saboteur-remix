@@ -1,4 +1,4 @@
-import { renderWithProviders } from "test-utils";
+import { renderWithProviders, nextFrame } from "test-utils";
 import { useSelector } from "react-redux";
 import * as Board from "./board.slice";
 import { Vec } from "@packages/domain";
@@ -63,7 +63,7 @@ describe("board state", () => {
     expect(positions).toHaveLength(1);
 
     // verify the card
-    expect((cards[0])).toHaveTextContent("start");
+    expect(cards[0]).toHaveTextContent("start");
     // verify the position
     const positionItems1 = within(positions[0]).queryAllByRole("listitem");
     expect(positionItems1).toHaveLength(2);
@@ -130,14 +130,15 @@ describe("board state", () => {
     expect(screen.queryAllByTestId("card")).toHaveLength(0);
     expect(screen.queryAllByTestId("position")).toHaveLength(0);
 
-    await act(() =>
+    await act(async () => {
       store.dispatch(
         Board.add({
           position: [0, 0],
           card: "start",
         })
-      )
-    );
+      );
+      await nextFrame();
+    });
 
     // verify nodes has been added
     const cards = screen.queryAllByTestId("card");
@@ -176,14 +177,12 @@ describe("board state", () => {
     expect(screen.queryAllByTestId("position")).toHaveLength(1);
     expect(screen.queryAllByTestId("card")).toHaveLength(1);
 
-    await act(() =>
+    await act(async () => {
       store.dispatch(
-        Board.remove({
-          position: [0, 0],
-          card: "start",
-        })
-      )
-    );
+        Board.remove(Vec.id([0, 0]))
+      );
+      await nextFrame();
+    });
 
     // check nodes had been removed
     expect(screen.queryAllByTestId("position")).toHaveLength(0);
