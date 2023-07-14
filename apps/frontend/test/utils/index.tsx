@@ -20,3 +20,9 @@ export function renderWithProviders<State = {}>(
 
   return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
 }
+
+export function nextFrame() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(resolve);
+  });
+}

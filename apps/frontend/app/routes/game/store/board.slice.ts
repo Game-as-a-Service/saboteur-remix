@@ -10,7 +10,8 @@ import type { RootState } from ".";
 const adapter = createEntityAdapter<Placement>({
   selectId: (placement) => Vec.id(placement.position),
 });
-export default createSlice({
+
+const slice = createSlice({
   name: "board",
   initialState: adapter.getInitialState(),
   reducers: {
@@ -32,6 +33,10 @@ export default createSlice({
     },
   },
 });
+export default slice;
+
+// actions
+export const { add, remove } = slice.actions;
 
 // selectors
 const selectors = adapter.getSelectors<RootState>((state) => state.board);
